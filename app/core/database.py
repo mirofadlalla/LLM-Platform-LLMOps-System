@@ -14,6 +14,7 @@ SessionLocal = sessionmaker( # -  SQLAlchemy هو factory (مصنع) بيبني 
     bind=engine
 )
 
+# Dependency دي بتستخدم في FastAPI عشان توفرلك جلسة قاعدة بيانات لكل طلب (request)
 def get_db():
     db = SessionLocal()
     try:
