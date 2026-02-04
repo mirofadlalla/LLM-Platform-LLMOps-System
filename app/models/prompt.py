@@ -1,5 +1,5 @@
 from .base import Base , uuid_pk
-from sqlalchemy import Column, String, ForeignKey , DateTime
+from sqlalchemy import Column, String, ForeignKey , DateTime , Boolean
 from datetime import datetime
 from sqlalchemy.orm import relationship
 from sqlalchemy import UniqueConstraint
@@ -29,7 +29,7 @@ class PromptVersion(Base):
     version = Column(String, nullable=False)
     template = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
-
+    is_active = Column(Boolean, default=False)
     prompt = relationship("Prompt", back_populates="versions")
 
     runs = relationship(

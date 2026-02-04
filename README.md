@@ -69,8 +69,37 @@ app/
 database_design.py      # Schema definitions
 ```
 
+## 🔧 Recent Fixes & Improvements
+
+### Bug Fixes (Feb 4, 2026)
+
+#### 1. **Database Query Null Check Issue**
+- **Problem**: Celery task was failing with `'NoneType' object has no attribute 'status'` because the database query was returning `None`
+- **Fix**: Added proper error handling in `run_task.py` to validate that the run exists before accessing its attributes
+- **Location**: [app/services/run_task.py](app/services/run_task.py#L14-L17)
+- **Change**: Added null check and informative error logging when a run is not found
+
+#### 2. **Invalid Model Name Format**
+- **Problem**: HuggingFace Inference Client was receiving invalid model ID `'Qwen/Qwen2.5-1.5B-Instruct:featherless-ai'` with forbidden `:featherless-ai` suffix
+- **Fix**: Corrected model name to valid format `'Qwen/Qwen2.5-1.5B-Instruct'`
+- **Location**: [app/core/llm_singleton.py](app/core/llm_singleton.py#L16)
+- **Impact**: Tasks now successfully authenticate and communicate with HuggingFace API
+
+#### 3. **Enhanced Error Logging**
+- **Improvement**: Added comprehensive error logging with stack traces for debugging
+- **Location**: [app/services/run_task.py](app/services/run_task.py#L51-L57)
+- **Benefit**: Better visibility into task failures for troubleshooting
+
+### Current Status
+✅ Database integration working
+✅ Celery task queue functional
+✅ HuggingFace API integration operational
+✅ Error handling and logging in place
+
 ## Next Steps
-- Complete LLM integration testing
-- Add monitoring and logging
-- Implement additional API features
-- Expand prompt management capabilities
+- Complete end-to-end LLM prompt execution testing
+- Add comprehensive monitoring and performance metrics
+- Implement task result storage and retrieval
+- Expand API features (batch processing, webhooks)
+- Add comprehensive test coverage
+- Set up production monitoring and alerting

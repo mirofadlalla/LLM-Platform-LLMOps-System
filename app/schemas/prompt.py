@@ -1,5 +1,9 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import List, Optional
+
+from datetime import datetime
+
+### Prompt Management + Versioning ###
 
 # Prompt Schemas
 
@@ -20,3 +24,35 @@ class PromptVersionResponse(BaseModel):
     prompt_id: str
     version: str
     template: str
+
+
+class PromptVersionHistoryItem(BaseModel):
+    id: str
+    version: str
+    is_active: bool
+    created_at: datetime
+
+
+class PromptVersionHistoryResponse(BaseModel):
+    prompt_id: str
+    versions: List[PromptVersionHistoryItem]
+
+class ActivatePromptVersionResponse(BaseModel):
+    prompt_id: str
+    activated_version_id: str
+    version: str
+
+from pydantic import BaseModel
+from uuid import UUID
+
+
+class DiffRequest(BaseModel):
+    prompt_id: UUID
+    from_version_id: UUID
+    to_version_id: UUID
+
+class PromptDiffResponse(BaseModel):
+    prompt_id: str
+    from_version_id: str
+    to_version_id: str
+    diff: List[str]

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 
 # Run Schemas
 
@@ -11,8 +11,9 @@ class RunRequest(BaseModel):
     
 class RunResponse(BaseModel):
     run_id: str
-    output: str
-    latency_ms: int
-    tokens_in: int
-    tokens_out: int
-    cost_usd: float
+    status: str
+    output: Optional[str] = None
+    latency_ms: Optional[int] = None
+    tokens_in: Optional[int] = None
+    tokens_out: Optional[int] = None
+    cost_usd: Optional[float] = None

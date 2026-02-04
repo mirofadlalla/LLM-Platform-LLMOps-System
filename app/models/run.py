@@ -24,6 +24,7 @@ class Run(Base):
     tokens_in = Column(Integer)
     tokens_out = Column(Integer)
     created_at = Column(DateTime, default=datetime.utcnow)
+    status = Column(String, default="pending")
 
     prompt_version = relationship(
         "PromptVersion",
