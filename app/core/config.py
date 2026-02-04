@@ -6,9 +6,13 @@ class Settings(BaseSettings):
     postgres_db: str
     postgres_host: str = "localhost"
     postgres_port: int = 5432
+    huggingface_api_key: str = ""
+    wandb_api_key: str = ""
+    api_secret_key: str = ""
 
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
     @property
     def DATABASE_URL(self) -> str:
