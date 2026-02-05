@@ -20,6 +20,8 @@ class Prompt(Base):
         order_by="PromptVersion.created_at"
     )
 
+    golden_examples = relationship("GoldenExample", back_populates="prompt")
+
 # PromptVersion
 class PromptVersion(Base):
     __tablename__ = "prompt_versions"

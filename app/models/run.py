@@ -38,6 +38,12 @@ class Run(Base):
         cascade="all, delete-orphan"
     )
 
+    evaluations = relationship(
+        "EvaluationResult",
+        back_populates="run",
+        cascade="all, delete-orphan"
+    )
+
 # CostLog
 class CostLog(Base):
     __tablename__ = "cost_logs"
@@ -52,6 +58,7 @@ class CostLog(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     run = relationship("Run", back_populates="cost")
+
 
 
 Index("idx_runs_created_at", Run.created_at)

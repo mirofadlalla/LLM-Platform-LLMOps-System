@@ -2,10 +2,13 @@ import logging
 import time
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
+import json
 
 from app.core.database import get_db
 from app.core.security import get_api_key
 from app.core.rate_limit import rate_limit
+from app.models.evaluation import GoldenExample
+from app.schemas.evaluation import GoldenExampleCreate
 from app.services.run_task import run_prompt_task
 
 from app.models import Prompt, PromptVersion, Run, CostLog
@@ -26,6 +29,11 @@ from app.schemas.run import RunRequest, RunResponse
 
 from app.services.prompt_diff import diff_templates
 
+from app.services.evaluator import similarity_score
+from app.services.llm_runner import call_llama
+from app.models.evaluation import EvaluationResult , GoldenExample
+
+from app.schemas.evaluation import EvaluationResponse
 router = APIRouter()
 
 @router.post(
@@ -346,3 +354,82 @@ http://0.0.0.0:8000/api/v1/prompts/diff?prompt_id=93c8a54c-4722-4787-968b-b33c91
     ]
 }
 '''
+
+
+# Create a golden example for a prompt
+@router.post(
+    "/prompts/{prompt_id}/golden-examples")
+def create_golden_example(
+        prompt_id: str,
+    payload: GoldenExampleCreate,
+    db: Session = Depends(get_db)
+): 
+    golden_example = GoldenExample(
+        prompt_id=prompt_id,
+        input_data=json.dumps(payload.input_data),
+        expected_output=payload.expected_output
+    )
+    db.add(golden_example)
+    db.commit()
+
+    return {
+        "golden_example_id": golden_example.id
+    }
+
+
+# Evaluate a prompt version against its golden examples
+@router.post(
+    "/prompts/{prompt_id}/versions/{version_id}/evaluate",
+    response_model=EvaluationResponse
+)
+async def evaluate_prompt_version(
+    prompt_id: str,
+    version_id: str,
+    db: Session = Depends(get_db),
+):
+    prompt_version = (
+        db.query(PromptVersion)
+        .filter(PromptVersion.id == version_id)
+        .first()
+    )
+
+    golden_examples = (
+        db.query(GoldenExample)
+        .filter(GoldenExample.prompt_id == prompt_id)
+        .all()
+    )
+
+    if not golden_examples:
+        raise HTTPException(400, "No golden examples found")
+
+    scores = []
+
+    for example in golden_examples:
+        variables = json.loads(example.input_data)
+        rendered = render_prompt(prompt_version.template, variables)
+
+        output, _, _ = await call_llama(rendered)
+
+        score = similarity_score(
+            example.expected_output,
+            output
+        )
+
+        scores.append(score)
+
+        db.add(
+            EvaluationResult(
+                prompt_version_id=version_id,
+                golden_example_id=example.id,
+                score=score,
+                output=output,
+            )
+        )
+
+    db.commit()
+
+    return {
+        "prompt_version_id": version_id,
+        "average_score": sum(scores) / len(scores),
+        "total_tests": len(scores),
+    }
