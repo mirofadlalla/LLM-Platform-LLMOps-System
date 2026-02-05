@@ -26,6 +26,7 @@ class EvaluationResult(Base):
     prompt_version_id = Column(String, ForeignKey("prompt_versions.id"))
     golden_example_id = Column(String, ForeignKey("golden_examples.id", ondelete="CASCADE"))
     score = Column(Float, nullable=False)
+    reason = Column(Text, nullable=True , default="")
     output  = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
 

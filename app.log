@@ -1,0 +1,355 @@
+2026-02-05 21:07:30,959 | INFO | Starting evaluation for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744, version_id: d135a66f-0f0a-454e-9b2e-087b7213853c
+2026-02-05 21:07:31,209 | INFO | Loaded prompt version: <app.models.prompt.PromptVersion object at 0x000002E5FC5C4C90>
+2026-02-05 21:07:31,229 | INFO | Found 3 golden examples
+2026-02-05 21:07:31,229 | INFO | Beginning evaluation loop over golden examples
+2026-02-05 21:07:31,229 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010747 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'What is FastAPI?'}
+2026-02-05 21:07:31,229 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+{document}
+
+Question:
+{question}
+
+2026-02-05 21:07:38,469 | INFO | Model output: I don't know.
+2026-02-05 21:07:38,469 | INFO | Evaluation prompt: 
+User Input: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+{document}
+
+Question:
+{question}
+
+Expected Output: FastAPI is a modern web framework for building APIs with Python.
+Model Output: I don't know.
+Evaluate the model output against the expected output based on the criteria mentioned in the system prompt.
+    
+2026-02-05 21:07:43,793 | INFO | Evaluation result (raw): ```json
+{
+  "score": 0,
+  "reason": "The model output does not match the expected output."
+}
+```
+2026-02-05 21:07:43,806 | INFO | Evaluation score: {'score': 0, 'reason': 'The model output does not match the expected output.'}
+2026-02-05 21:07:43,806 | INFO | Logged evaluation result for golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010747
+2026-02-05 21:07:43,806 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010745 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'Who created FastAPI?'}
+2026-02-05 21:07:43,806 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+{document}
+
+Question:
+{question}
+
+2026-02-05 21:07:48,394 | INFO | Model output: I don't know.
+2026-02-05 21:07:48,394 | INFO | Evaluation prompt: 
+User Input: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+{document}
+
+Question:
+{question}
+
+Expected Output: I don't know
+Model Output: I don't know.
+Evaluate the model output against the expected output based on the criteria mentioned in the system prompt.
+    
+2026-02-05 21:07:53,519 | INFO | Evaluation result (raw): ```json
+{
+  "score": 1,
+  "reason": "The model output matches the expected output exactly."
+}
+```
+2026-02-05 21:07:53,519 | INFO | Evaluation score: {'score': 1, 'reason': 'The model output matches the expected output exactly.'}
+2026-02-05 21:07:53,519 | INFO | Logged evaluation result for golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010745
+2026-02-05 21:07:53,519 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010741 with variables: {'document': 'FastAPI supports async programming and automatic OpenAPI generation.', 'question': 'What features does FastAPI support?'}
+2026-02-05 21:07:53,519 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+{document}
+
+Question:
+{question}
+
+2026-02-05 21:07:57,813 | INFO | Model output: I don't know.
+2026-02-05 21:07:57,813 | INFO | Evaluation prompt: 
+User Input: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+{document}
+
+Question:
+{question}
+
+Expected Output: FastAPI supports async programming and automatic OpenAPI generation.
+Model Output: I don't know.
+Evaluate the model output against the expected output based on the criteria mentioned in the system prompt.
+    
+2026-02-05 21:08:02,777 | INFO | Evaluation result (raw): ```json
+{
+  "score": 0,
+  "reason": "The model output does not match the expected output."
+}
+```
+2026-02-05 21:08:02,777 | INFO | Evaluation score: {'score': 0, 'reason': 'The model output does not match the expected output.'}
+2026-02-05 21:08:02,777 | INFO | Logged evaluation result for golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010741
+2026-02-05 21:15:06,163 | INFO | Starting evaluation for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744, version_id: d135a66f-0f0a-454e-9b2e-087b7213853c
+2026-02-05 21:15:06,322 | INFO | Loaded prompt version: <app.models.prompt.PromptVersion object at 0x000002E5D7E69950>
+2026-02-05 21:15:06,322 | INFO | Found 3 golden examples
+2026-02-05 21:15:06,322 | INFO | Beginning evaluation loop over golden examples
+2026-02-05 21:15:06,322 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010747 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'What is FastAPI?'}
+2026-02-05 21:15:06,322 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+What is FastAPI?
+
+2026-02-05 21:15:12,209 | INFO | Model output: FastAPI is a modern web framework for building APIs with Python.
+2026-02-05 21:15:12,209 | INFO | Evaluation prompt: 
+User Input: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+What is FastAPI?
+
+Expected Output: FastAPI is a modern web framework for building APIs with Python.
+Model Output: FastAPI is a modern web framework for building APIs with Python.
+Evaluate the model output against the expected output based on the criteria mentioned in the system prompt.
+    
+2026-02-05 21:15:20,312 | INFO | Evaluation result (raw): {   "score": 1.0,   "reason": "The model output matches the expected output exactly." }
+2026-02-05 21:15:20,339 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output matches the expected output exactly.'}
+2026-02-05 21:15:20,339 | INFO | Logged evaluation result for golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010747
+2026-02-05 21:15:20,339 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010745 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'Who created FastAPI?'}
+2026-02-05 21:15:20,345 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+Who created FastAPI?
+
+2026-02-05 21:15:52,460 | INFO | Model output: I don't know.
+2026-02-05 21:15:52,460 | INFO | Evaluation prompt: 
+User Input: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+Who created FastAPI?
+
+Expected Output: I don't know
+Model Output: I don't know.
+Evaluate the model output against the expected output based on the criteria mentioned in the system prompt.
+    
+2026-02-05 21:15:57,569 | INFO | Evaluation result (raw): {   "score": 1.0,   "reason": "The model output matches the expected output exactly." }
+2026-02-05 21:15:57,569 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output matches the expected output exactly.'}
+2026-02-05 21:15:57,569 | INFO | Logged evaluation result for golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010745
+2026-02-05 21:15:57,569 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010741 with variables: {'document': 'FastAPI supports async programming and automatic OpenAPI generation.', 'question': 'What features does FastAPI support?'}
+2026-02-05 21:15:57,569 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI supports async programming and automatic OpenAPI generation.
+
+Question:
+What features does FastAPI support?
+
+2026-02-05 21:16:02,279 | INFO | Model output: FastAPI supports async programming and automatic OpenAPI generation.
+2026-02-05 21:16:02,280 | INFO | Evaluation prompt: 
+User Input: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI supports async programming and automatic OpenAPI generation.
+
+Question:
+What features does FastAPI support?
+
+Expected Output: FastAPI supports async programming and automatic OpenAPI generation.
+Model Output: FastAPI supports async programming and automatic OpenAPI generation.
+Evaluate the model output against the expected output based on the criteria mentioned in the system prompt.
+    
+2026-02-05 21:16:16,609 | INFO | Evaluation result (raw): {   "score": 1.0,   "reason": "The model output matches the expected output exactly." }
+2026-02-05 21:16:16,623 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output matches the expected output exactly.'}
+2026-02-05 21:16:16,625 | INFO | Logged evaluation result for golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010741
+2026-02-05 21:17:23,940 | INFO | Starting evaluation for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744, version_id: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-05 21:17:23,940 | INFO | Loaded prompt version: <app.models.prompt.PromptVersion object at 0x000002E5FC5E6D90>
+2026-02-05 21:17:23,940 | INFO | Found 3 golden examples
+2026-02-05 21:17:23,940 | INFO | Beginning evaluation loop over golden examples
+2026-02-05 21:17:23,940 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010747 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'What is FastAPI?'}
+2026-02-05 21:17:23,940 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+What is FastAPI?
+
+2026-02-05 21:17:28,705 | INFO | Model output: FastAPI is a modern web framework for building APIs with Python.
+2026-02-05 21:17:28,705 | INFO | Evaluation prompt: 
+User Input: Answer the user's question using the document.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+What is FastAPI?
+
+Expected Output: FastAPI is a modern web framework for building APIs with Python.
+Model Output: FastAPI is a modern web framework for building APIs with Python.
+Evaluate the model output against the expected output based on the criteria mentioned in the system prompt.
+    
+2026-02-05 21:17:33,747 | INFO | Evaluation result (raw): {   "score": 1.0,   "reason": "The model output exactly matches the expected output." }
+2026-02-05 21:17:33,747 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output exactly matches the expected output.'}
+2026-02-05 21:17:33,747 | INFO | Logged evaluation result for golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010747
+2026-02-05 21:17:33,747 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010745 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'Who created FastAPI?'}
+2026-02-05 21:17:33,747 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+Who created FastAPI?
+
+2026-02-05 21:17:38,432 | INFO | Model output: The creator of FastAPI is Tadeas Zeman.
+2026-02-05 21:17:38,432 | INFO | Evaluation prompt: 
+User Input: Answer the user's question using the document.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+Who created FastAPI?
+
+Expected Output: I don't know
+Model Output: The creator of FastAPI is Tadeas Zeman.
+Evaluate the model output against the expected output based on the criteria mentioned in the system prompt.
+    
+2026-02-05 21:17:43,452 | INFO | Evaluation result (raw): ```json
+{
+  "score": 1,
+  "reason": "The model output matches the expected output exactly."
+}
+```
+2026-02-05 21:17:43,455 | INFO | Evaluation score: {'score': 1, 'reason': 'The model output matches the expected output exactly.'}
+2026-02-05 21:17:43,455 | INFO | Logged evaluation result for golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010745
+2026-02-05 21:17:43,455 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010741 with variables: {'document': 'FastAPI supports async programming and automatic OpenAPI generation.', 'question': 'What features does FastAPI support?'}
+2026-02-05 21:17:43,455 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI supports async programming and automatic OpenAPI generation.
+
+Question:
+What features does FastAPI support?
+
+2026-02-05 21:17:47,956 | INFO | Model output: FastAPI supports asynchronous programming and automatically generates OpenAPI documentation.
+2026-02-05 21:17:47,956 | INFO | Evaluation prompt: 
+User Input: Answer the user's question using the document.
+
+Document:
+FastAPI supports async programming and automatic OpenAPI generation.
+
+Question:
+What features does FastAPI support?
+
+Expected Output: FastAPI supports async programming and automatic OpenAPI generation.
+Model Output: FastAPI supports asynchronous programming and automatically generates OpenAPI documentation.
+Evaluate the model output against the expected output based on the criteria mentioned in the system prompt.
+    
+2026-02-05 21:17:52,973 | INFO | Evaluation result (raw): ```json
+{
+  "score": 1,
+  "reason": "The model output exactly matches the expected output."
+}
+```
+2026-02-05 21:17:52,973 | INFO | Evaluation score: {'score': 1, 'reason': 'The model output exactly matches the expected output.'}
+2026-02-05 21:17:52,973 | INFO | Logged evaluation result for golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010741

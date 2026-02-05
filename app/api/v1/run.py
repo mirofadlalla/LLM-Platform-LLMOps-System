@@ -34,6 +34,15 @@ from app.services.llm_runner import call_llama
 from app.models.evaluation import EvaluationResult , GoldenExample
 
 from app.schemas.evaluation import EvaluationResponse
+
+import logging
+
+logging.basicConfig(
+    filename="app.log",
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
+
 router = APIRouter()
 
 @router.post(
@@ -387,11 +396,14 @@ async def evaluate_prompt_version(
     version_id: str,
     db: Session = Depends(get_db),
 ):
+    logging.info(f"Starting evaluation for prompt_id: {prompt_id}, version_id: {version_id}")
     prompt_version = (
         db.query(PromptVersion)
         .filter(PromptVersion.id == version_id)
         .first()
     )
+
+    logging.info(f"Loaded prompt version: {prompt_version}")
 
     golden_examples = (
         db.query(GoldenExample)
@@ -399,32 +411,45 @@ async def evaluate_prompt_version(
         .all()
     )
 
+    logging.info(f"Found {len(golden_examples)} golden examples")
+
     if not golden_examples:
+        logging.error("No golden examples found")
         raise HTTPException(400, "No golden examples found")
 
     scores = []
 
+    logging.info("Beginning evaluation loop over golden examples")
     for example in golden_examples:
         variables = json.loads(example.input_data)
+        logging.info(f"Evaluating golden example ID: {example.id} with variables: {variables}")
         rendered = render_prompt(prompt_version.template, variables)
+        logging.info(f"Rendered prompt: {rendered}")
 
-        output, _, _ = await call_llama(rendered)
+        output, _, _ = call_llama(rendered)
+        logging.info(f"Model output: {output}")
 
         score = similarity_score(
-            example.expected_output,
-            output
+            user_input=rendered,
+            expected_output=example.expected_output,
+            model_output=output
         )
+        logging.info(f"Evaluation score: {score}")
 
-        scores.append(score)
+
+        scores.append(score['score'])
 
         db.add(
             EvaluationResult(
                 prompt_version_id=version_id,
                 golden_example_id=example.id,
-                score=score,
+                score=score['score'],
+                reason=score.get('reason', ''),
                 output=output,
             )
         )
+
+        logging.info(f"Logged evaluation result for golden example ID: {example.id}")
 
     db.commit()
 

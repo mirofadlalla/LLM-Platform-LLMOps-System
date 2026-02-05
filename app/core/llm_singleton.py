@@ -95,6 +95,7 @@ class LLMService:
     def generate(
         self,
         prompt: str,
+        system_prompt: str,
         max_new_tokens: int = 150,
         temperature: float = 0.0,
     ) -> str:
@@ -102,6 +103,7 @@ class LLMService:
         completion = self.client.chat.completions.create(
             model=self.model,
             messages=[
+                {"role": "system", "content": system_prompt},
                 {"role": "user", "content": prompt}
             ],
             max_tokens=max_new_tokens,
