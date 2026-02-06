@@ -1,18 +1,22 @@
 import logging
 import time
+import json
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-import json
 
-from app.core.database import get_db
+from app.core.database import SessionLocal, get_db
 from app.core.security import get_api_key
 from app.core.rate_limit import rate_limit
-from app.models.evaluation import GoldenExample
-from app.schemas.evaluation import GoldenExampleCreate
-from app.services.run_task import run_prompt_task
-
-from app.models import Prompt, PromptVersion, Run, CostLog
-
+from app.models import (
+    Prompt,
+    PromptVersion,
+    Run,
+    CostLog,
+    GoldenExample,
+    EvaluationResult,
+    Experiment,
+    ExperimentResult
+)
 from app.schemas.prompt import (
     ActivatePromptVersionResponse,
     PromptCreate,
@@ -23,25 +27,21 @@ from app.schemas.prompt import (
     PromptVersionResponse,
 )
 from app.schemas.run import RunRequest, RunResponse
-
+from app.schemas.evaluation import GoldenExampleCreate, EvaluationResponse
 from app.services.prompt_renderer import render_prompt
-from app.schemas.run import RunRequest, RunResponse
-
 from app.services.prompt_diff import diff_templates
-
 from app.services.evaluator import similarity_score
 from app.services.llm_runner import call_llama
-from app.models.evaluation import EvaluationResult , GoldenExample
+from app.services import run_experiment
+from app.services.run_task import run_prompt_task
 
-from app.schemas.evaluation import EvaluationResponse
-
-import logging
-
-logging.basicConfig(
-    filename="app.log",
-    level=logging.INFO,
-    format="%(asctime)s | %(levelname)s | %(message)s"
-)
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+if not logger.handlers:
+    handler = logging.FileHandler("app.log")
+    formatter = logging.Formatter("%(asctime)s | %(levelname)s | %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 router = APIRouter()
 
@@ -104,70 +104,6 @@ def create_prompt_version(
         "version": version.version,
         "template": version.template
     }
-
-
-
-# @router.post(
-#     "/run",
-#     response_model=RunResponse
-# )
-# async def run_prompt(
-#     payload: RunRequest,
-#     db: Session = Depends(get_db),
-#     api_key: str = Depends(get_api_key),
-# ):
-#     """
-#     FastAPI Brain - Receives HTTP request
-#     1. Load and render prompt
-#     2. Send task to Celery muscle via Redis nervous system
-#     3. Return task ID for tracking
-#     """
-#     # Rate limiting
-#     rate_limit(api_key)
-
-#     # 1 - Load prompt version
-#     prompt_version = (
-#         db.query(PromptVersion)
-#         .filter(PromptVersion.id == payload.prompt_version_id)
-#         .first()
-#     )
-
-#     if not prompt_version:
-#         raise HTTPException(
-#             status_code=404,
-#             detail="Prompt version not found"
-#         )
-
-#     # 2️ - Render prompt
-#     try:
-#         rendered_prompt = render_prompt(
-#             prompt_version.template,
-#             payload.variables
-#         )
-#         logging.info(f"Rendered prompt: {rendered_prompt}")
-#     except ValueError as e:
-#         raise HTTPException(status_code=400, detail=str(e))
-
-#     print("Rendered Prompt:", rendered_prompt)
-    
-#     # 3️ - Submit task to Celery (muscle) via Redis (nervous system)
-#     task = run_prompt_task.apply_async(
-#         args=[
-#             str(prompt_version.id),
-#             rendered_prompt,
-#             payload.model,
-#             api_key
-#         ],
-#         queue="llm_tasks_queue"
-#     )
-
-#     # Return task ID for polling
-#     return {
-#         "task_id": task.id,
-#         "status": "processing",
-#         "message": f"Task submitted to Celery. Check status with task_id: {task.id}"
-#     }
-
 
 
 # New endpoint to create a run and immediately return pending status, while processing happens asynchronously
@@ -396,14 +332,14 @@ async def evaluate_prompt_version(
     version_id: str,
     db: Session = Depends(get_db),
 ):
-    logging.info(f"Starting evaluation for prompt_id: {prompt_id}, version_id: {version_id}")
+    logger.info(f"Starting evaluation for prompt_id: {prompt_id}, version_id: {version_id}")
     prompt_version = (
         db.query(PromptVersion)
         .filter(PromptVersion.id == version_id)
         .first()
     )
 
-    logging.info(f"Loaded prompt version: {prompt_version}")
+    logger.info(f"Loaded prompt version: {prompt_version}")
 
     golden_examples = (
         db.query(GoldenExample)
@@ -411,30 +347,30 @@ async def evaluate_prompt_version(
         .all()
     )
 
-    logging.info(f"Found {len(golden_examples)} golden examples")
+    logger.info(f"Found {len(golden_examples)} golden examples")
 
     if not golden_examples:
-        logging.error("No golden examples found")
+        logger.error("No golden examples found")
         raise HTTPException(400, "No golden examples found")
 
     scores = []
 
-    logging.info("Beginning evaluation loop over golden examples")
+    logger.info("Beginning evaluation loop over golden examples")
     for example in golden_examples:
         variables = json.loads(example.input_data)
-        logging.info(f"Evaluating golden example ID: {example.id} with variables: {variables}")
+        logger.info(f"Evaluating golden example ID: {example.id} with variables: {variables}")
         rendered = render_prompt(prompt_version.template, variables)
-        logging.info(f"Rendered prompt: {rendered}")
+        logger.info(f"Rendered prompt: {rendered}")
 
         output, _, _ = call_llama(rendered)
-        logging.info(f"Model output: {output}")
+        logger.info(f"Model output: {output}")
 
         score = similarity_score(
             user_input=rendered,
             expected_output=example.expected_output,
             model_output=output
         )
-        logging.info(f"Evaluation score: {score}")
+        logger.info(f"Evaluation score: {score}")
 
 
         scores.append(score['score'])
@@ -449,7 +385,7 @@ async def evaluate_prompt_version(
             )
         )
 
-        logging.info(f"Logged evaluation result for golden example ID: {example.id}")
+        logger.debug(f"Logged evaluation result for golden example ID: {example.id}")
 
     db.commit()
 
@@ -457,4 +393,54 @@ async def evaluate_prompt_version(
         "prompt_version_id": version_id,
         "average_score": sum(scores) / len(scores),
         "total_tests": len(scores),
+    }
+
+
+
+# # Experiment Runner Logic
+
+# endpoint to trigger experiment run
+@router.post("/experiments/run")
+def trigger_experiment_run(
+    prompt_id: str,
+    experiment_name: str,
+    api_key: str = Depends(get_api_key),
+):
+    rate_limit(api_key)
+
+    # fire async task - use positional arguments
+    run_experiment.delay(
+        prompt_id,
+        experiment_name,
+    )
+
+    return {
+        "message": f"Experiment '{experiment_name}' is running. Check results later."
+    }
+
+# experiments results endpoint
+@router.get("/experiments/{experiment_id}/status")
+def get_experiment_status(
+    experiment_id: str,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(get_api_key),
+):
+    rate_limit(api_key)
+
+    experiment = db.query(Experiment).filter(Experiment.id == experiment_id).first()
+
+    if not experiment:
+        raise HTTPException(status_code=404, detail="Experiment not found")
+
+    results = (
+        db.query(ExperimentResult)
+        .filter(ExperimentResult.experiment_id == experiment_id)
+        .all()
+    )
+
+    return {
+        "experiment_id": experiment_id,
+        "experiment_name": experiment.name,
+        "status": experiment.status,
+        "results": results
     }

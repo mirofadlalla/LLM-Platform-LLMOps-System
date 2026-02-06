@@ -35,7 +35,7 @@ def run_prompt_task(self, run_id: str, payload: dict):
         start = time.perf_counter()
         output, tokens_in, tokens_out = call_llama(
             rendered_prompt,
-            payload["model"]
+            model_name=payload.get("model", "Qwen/Qwen2.5-1.5B-Instruct")
         )
         latency_ms = int((time.perf_counter() - start) * 1000)
 

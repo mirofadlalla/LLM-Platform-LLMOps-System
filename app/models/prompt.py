@@ -21,6 +21,7 @@ class Prompt(Base):
     )
 
     golden_examples = relationship("GoldenExample", back_populates="prompt")
+    experiments = relationship("Experiment", back_populates="prompt")
 
 # PromptVersion
 class PromptVersion(Base):

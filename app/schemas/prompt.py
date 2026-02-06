@@ -2,6 +2,8 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 from datetime import datetime
+from pydantic import BaseModel
+from uuid import UUID
 
 ### Prompt Management + Versioning ###
 
@@ -42,15 +44,14 @@ class ActivatePromptVersionResponse(BaseModel):
     activated_version_id: str
     version: str
 
-from pydantic import BaseModel
-from uuid import UUID
 
-
+# Diff Schemas
 class DiffRequest(BaseModel):
     prompt_id: UUID
     from_version_id: UUID
     to_version_id: UUID
 
+# Diff Response
 class PromptDiffResponse(BaseModel):
     prompt_id: str
     from_version_id: str

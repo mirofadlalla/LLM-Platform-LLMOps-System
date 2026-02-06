@@ -23,13 +23,12 @@ def get_api_key(
             detail="Invalid auth scheme"
         )
 
-    api_key = "Bearer test-key-123"
-    # api_key = (
-    #     db.query(APIKey)
-    #     .filter(APIKey.key == credentials.credentials)
-    #     .filter(APIKey.is_active == True)
-    #     .first()
-    # )
+    api_key = (
+        db.query(APIKey)
+        .filter(APIKey.key == credentials.credentials)
+        .filter(APIKey.is_active == True)
+        .first()
+    )
 
     if not api_key:
         raise HTTPException(

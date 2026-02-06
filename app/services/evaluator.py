@@ -1,8 +1,9 @@
 import difflib
-
-from .llm_runner import call_llama
 import logging
+from .llm_runner import call_llama
 from langchain_core.output_parsers import SimpleJsonOutputParser
+
+logger = logging.getLogger(__name__)
 # def similarity_score(excepted : str , actual: str) -> float:
 #     """
 #     Calculate a similarity score between two strings using SequenceMatcher.
@@ -21,7 +22,8 @@ Evaluate based on: \
 Return a JSON object ONLY with: \
 { \
   "score": float between 0 and 1, \
-  "reason": short explanation \
+  "reason": short explanation, \
+  "hallucination_rate": float between 0 and 1 indicating the degree of hallucination in the model output \
 }
 """
 def similarity_score(user_input: str, expected_output: str, model_output: str) -> dict:

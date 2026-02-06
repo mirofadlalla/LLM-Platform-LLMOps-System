@@ -6,4 +6,7 @@ router = APIRouter()
 
 @router.get("/health")
 def health_check():
-    return {"status": "ok"}
+    """
+    Health check endpoint to verify that the API is running.
+    """
+    return {"status": "ok", "timestamp": int(time.time())}

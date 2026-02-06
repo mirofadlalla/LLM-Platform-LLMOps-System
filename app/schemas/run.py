@@ -9,6 +9,7 @@ class RunRequest(BaseModel):
     variables: Dict[str, Any]
     model: str
     
+# Optional fields for future use (e.g., for tracking tokens, latency, etc.)
 class RunResponse(BaseModel):
     run_id: str
     status: str
