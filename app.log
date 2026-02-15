@@ -353,3 +353,296 @@ Evaluate the model output against the expected output based on the criteria ment
 ```
 2026-02-05 21:17:52,973 | INFO | Evaluation score: {'score': 1, 'reason': 'The model output exactly matches the expected output.'}
 2026-02-05 21:17:52,973 | INFO | Logged evaluation result for golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010741
+2026-02-15 02:44:53,463 | INFO | Created run: 9b26ff84-0d92-4295-868e-514079c5cc82 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 02:44:53,902 | INFO | Task queued with Celery task ID: 4f67985f-960f-4d7d-bd79-00b7fbbd3ceb
+2026-02-15 02:54:19,236 | INFO | Created run: dd1635af-3960-4c59-ad66-3369ddfb7d94 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 02:54:19,713 | INFO | Task queued with Celery task ID: 04a78205-996d-489b-83b7-477409fc5e0b
+2026-02-15 02:55:40,440 | INFO | Created run: 3152a853-0940-4a10-9df8-4bd2c516d073 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 02:55:40,484 | INFO | Task queued with Celery task ID: f30ecf84-28cb-4634-a46c-4ead635c8815
+2026-02-15 02:58:35,827 | INFO | Created run: 79bf4286-ea32-4472-ac7f-391e19eb56fa for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 02:58:36,341 | INFO | Task queued with Celery task ID: d0bbf89a-1157-4da5-abb6-39ad0af98607
+2026-02-15 03:03:37,229 | INFO | Created run: 69c30a9c-b1db-40f7-b552-e2fb26debe07 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:03:37,291 | INFO | Task queued with Celery task ID: 2e668f20-b2e9-4f5a-bc8d-f46c92c67515
+2026-02-15 03:05:28,299 | INFO | Created run: d92bd7fe-1984-4b41-9153-c6490991b7a9 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:05:28,706 | INFO | Task queued with Celery task ID: 299c8d3c-1c6e-48d0-920a-def421e9bc4b
+2026-02-15 03:07:18,845 | INFO | Created run: 8caee799-078d-43ff-b4a0-f3cf6ce745c1 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:07:18,853 | INFO | Task queued with Celery task ID: 1418dc4a-fbb1-4399-9e6e-ce8d62f5168e
+2026-02-15 03:12:11,448 | INFO | Created run: 3a3b9e98-9f4c-4b41-8bf3-d7aa627d4d5e for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:12:11,503 | INFO | Task queued with Celery task ID: d77689ee-2d9d-45d9-bef6-928188831dd9
+2026-02-15 03:14:00,424 | INFO | Created run: 9f501970-5559-4fb9-aad0-7e55ad48b5b2 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:14:00,881 | INFO | Task queued with Celery task ID: 2287b494-7b32-4e29-8294-71db984aab79
+2026-02-15 03:14:56,840 | INFO | Created run: 7650cc02-c586-4edc-aed9-490ccae8ea93 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:14:56,843 | INFO | Task queued with Celery task ID: a522b364-0721-45f1-b629-108946d58076
+2026-02-15 03:17:11,480 | INFO | Created run: ba3c8c1c-f444-4404-aa49-682f03ec0bb7 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:17:11,599 | INFO | Task queued with Celery task ID: b49faf7a-180e-4e8d-b6cf-e266cee0c3e6
+2026-02-15 03:17:16,144 | INFO | Created run: a63914c1-6190-486f-ae7f-bf243c1be9d1 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:17:16,147 | INFO | Task queued with Celery task ID: 1a191962-d5fe-4c85-9559-c10f2b4d88db
+2026-02-15 03:17:16,989 | INFO | Created run: 357b4553-7423-4584-a176-f7c4a9626153 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:17:16,998 | INFO | Task queued with Celery task ID: fd76d3ac-c921-425e-b949-4ab66e7241de
+2026-02-15 03:17:17,734 | INFO | Created run: 30161d33-3e52-43dd-896e-793baec9bb63 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:17:17,739 | INFO | Task queued with Celery task ID: 140f7bb0-0aa7-4bb1-9ce7-d7bd55667964
+2026-02-15 03:17:18,553 | INFO | Created run: a536f07e-5d81-4992-9291-0456d2b71a38 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:17:18,556 | INFO | Task queued with Celery task ID: 5a3e9881-d82c-45fc-a8a3-e86c67aaa4b4
+2026-02-15 03:35:14,252 | INFO | Created run: 177ec951-457e-4e00-b541-df7a526e1ef2 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 03:35:14,757 | INFO | Task queued with Celery task ID: 7cfaaa54-b8b2-4ced-a6f9-4c842d4ac8fb
+2026-02-15 04:17:26,030 | INFO | Triggering experiment: v3 for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744
+2026-02-15 04:17:26,832 | INFO | Experiment task queued with Celery task ID: 07ed786f-537d-43f9-a6df-b703e14d31b7
+2026-02-15 04:19:02,189 | INFO | Starting evaluation for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744, version_id: d135a66f-0f0a-454e-9b2e-087b7213853c
+2026-02-15 04:19:02,205 | INFO | Loaded prompt version: <app.models.prompt.PromptVersion object at 0x000001F228647610>
+2026-02-15 04:19:02,208 | INFO | Found 3 golden examples
+2026-02-15 04:19:02,208 | INFO | Beginning evaluation loop over golden examples
+2026-02-15 04:19:02,213 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010747 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'What is FastAPI?'}
+2026-02-15 04:19:02,214 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+What is FastAPI?
+
+2026-02-15 04:19:18,593 | INFO | Model output: FastAPI is a modern web framework for building APIs with Python.
+2026-02-15 04:19:37,073 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output matches the expected output exactly.', 'hallucination_rate': 0.0}
+2026-02-15 04:19:37,095 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010745 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'Who created FastAPI?'}
+2026-02-15 04:19:37,095 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+Who created FastAPI?
+
+2026-02-15 04:19:45,296 | INFO | Model output: I don't know.
+2026-02-15 04:19:52,577 | INFO | Evaluation score: {'score': 1, 'reason': 'The model output matches the expected output.', 'hallucination_rate': 0}
+2026-02-15 04:19:52,577 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010741 with variables: {'document': 'FastAPI supports async programming and automatic OpenAPI generation.', 'question': 'What features does FastAPI support?'}
+2026-02-15 04:19:52,577 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI supports async programming and automatic OpenAPI generation.
+
+Question:
+What features does FastAPI support?
+
+2026-02-15 04:19:59,234 | INFO | Model output: FastAPI supports async programming and automatic OpenAPI generation.
+2026-02-15 04:20:04,616 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output matches the expected output exactly.', 'hallucination_rate': 0.0}
+2026-02-15 04:20:04,694 | INFO | Starting evaluation for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744, version_id: d135a66f-0f0a-454e-9b2e-087b7213853c
+2026-02-15 04:20:04,701 | INFO | Loaded prompt version: <app.models.prompt.PromptVersion object at 0x000001F22860C550>
+2026-02-15 04:20:04,702 | INFO | Found 3 golden examples
+2026-02-15 04:20:04,702 | INFO | Beginning evaluation loop over golden examples
+2026-02-15 04:20:04,702 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010747 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'What is FastAPI?'}
+2026-02-15 04:20:04,704 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+What is FastAPI?
+
+2026-02-15 04:20:11,825 | INFO | Model output: FastAPI is a modern web framework for building APIs with Python.
+2026-02-15 04:20:19,304 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output matches the expected output exactly.', 'hallucination_rate': 0.0}
+2026-02-15 04:20:19,304 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010745 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'Who created FastAPI?'}
+2026-02-15 04:20:19,304 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+Who created FastAPI?
+
+2026-02-15 04:20:23,704 | INFO | Model output: I don't know.
+2026-02-15 04:20:28,826 | INFO | Evaluation score: {'score': 1, 'reason': 'The model output matches the expected output.', 'hallucination_rate': 0}
+2026-02-15 04:20:28,826 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010741 with variables: {'document': 'FastAPI supports async programming and automatic OpenAPI generation.', 'question': 'What features does FastAPI support?'}
+2026-02-15 04:20:28,826 | INFO | Rendered prompt: You are a factual assistant.
+
+Use ONLY the information from the document to answer the question.
+
+Rules:
+- If the answer is not explicitly stated, reply exactly with: "I don't know".
+- Do not add explanations unless asked.
+- Keep the answer under 50 words.
+
+Document:
+FastAPI supports async programming and automatic OpenAPI generation.
+
+Question:
+What features does FastAPI support?
+
+2026-02-15 04:20:33,633 | INFO | Model output: FastAPI supports async programming and automatic OpenAPI generation.
+2026-02-15 04:20:40,906 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output matches the expected output exactly.', 'hallucination_rate': 0.0}
+2026-02-15 04:26:56,377 | INFO | Created run: 1de9da1e-0806-4b59-9655-055b1a20960c for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853a
+2026-02-15 04:26:56,777 | INFO | Task queued with Celery task ID: 7e18f6b2-8af3-4986-b050-98d263f24752
+2026-02-15 04:28:09,922 | INFO | Created run: 9c4ace89-a8db-4585-a67a-74ed6098267a for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853c
+2026-02-15 04:28:10,054 | INFO | Task queued with Celery task ID: 1ebee3c1-d51b-40eb-b55d-9f2aaf3b6656
+2026-02-15 04:28:44,162 | INFO | Created run: 0276c6e4-e9a4-4faf-a964-13a222c5da03 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853a
+2026-02-15 04:28:44,168 | INFO | Task queued with Celery task ID: dd2fc01d-43a4-4d92-807c-a455cdb7da9f
+2026-02-15 04:28:47,716 | INFO | Created run: 23715e45-962c-4b94-b2c1-cf6861d69f08 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853a
+2026-02-15 04:28:47,719 | INFO | Task queued with Celery task ID: 05dbe5ea-3f84-4854-995f-73dfca604a96
+2026-02-15 04:28:48,471 | INFO | Created run: e8ca60a7-491c-4958-8a94-ee44bf299eb7 for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853a
+2026-02-15 04:28:48,479 | INFO | Task queued with Celery task ID: 118bc5ae-88e4-4e46-9cfe-e65029c53a20
+2026-02-15 04:28:49,026 | INFO | Created run: 43d17a2a-dbd8-43ea-936f-6e3035e8b5da for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853a
+2026-02-15 04:28:49,028 | INFO | Task queued with Celery task ID: fef0db43-89ef-4cd1-8979-9fa99580714f
+2026-02-15 04:28:52,862 | INFO | Created run: c890a0d7-df5e-42ea-b487-defa2918a53a for prompt_version: d135a66f-0f0a-454e-9b2e-087b7213853a
+2026-02-15 04:28:52,866 | INFO | Task queued with Celery task ID: 043c69f5-cf02-4460-982c-674c1705e4d1
+2026-02-15 04:32:09,101 | INFO | Triggering experiment: Hello from the other side for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744
+2026-02-15 04:32:09,242 | INFO | Experiment task queued with Celery task ID: 67fadcb0-659b-4cd8-a4fd-519e0f7ed084
+2026-02-15 17:12:24,611 | INFO | Starting evaluation for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744, version_id: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 17:12:24,624 | INFO | Loaded prompt version: <app.models.prompt.PromptVersion object at 0x000001E66100B110>
+2026-02-15 17:12:24,627 | INFO | Found 4 golden examples
+2026-02-15 17:12:24,627 | INFO | Beginning evaluation loop over golden examples
+2026-02-15 17:12:24,627 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010747 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'What is FastAPI?'}
+2026-02-15 17:12:24,627 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+What is FastAPI?
+
+2026-02-15 17:15:08,321 | INFO | Starting evaluation for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744, version_id: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 17:15:08,408 | INFO | Loaded prompt version: <app.models.prompt.PromptVersion object at 0x000001E661344F10>
+2026-02-15 17:15:08,411 | INFO | Found 4 golden examples
+2026-02-15 17:15:08,411 | INFO | Beginning evaluation loop over golden examples
+2026-02-15 17:15:08,417 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010747 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'What is FastAPI?'}
+2026-02-15 17:15:08,417 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+What is FastAPI?
+
+2026-02-15 17:15:18,381 | INFO | Model output: FastAPI is a modern web framework for building APIs with Python.
+2026-02-15 17:15:26,028 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output matches exactly with the expected output.', 'hallucination_rate': 0.0}
+2026-02-15 17:15:26,035 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010745 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'Who created FastAPI?'}
+2026-02-15 17:15:26,035 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+Who created FastAPI?
+
+2026-02-15 17:15:32,738 | INFO | Model output: The creator of FastAPI is Tadeas Zeman.
+2026-02-15 17:15:38,494 | INFO | Evaluation score: {'score': 0.9, 'reason': 'The model correctly identified the creator of FastAPI as Tadeas Zeman.', 'hallucination_rate': 0.05}
+2026-02-15 17:15:38,494 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010741 with variables: {'document': 'FastAPI supports async programming and automatic OpenAPI generation.', 'question': 'What features does FastAPI support?'}
+2026-02-15 17:15:38,494 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI supports async programming and automatic OpenAPI generation.
+
+Question:
+What features does FastAPI support?
+
+2026-02-15 17:15:44,936 | INFO | Model output: FastAPI supports asynchronous programming and automatically generates OpenAPI documentation.
+2026-02-15 17:15:54,240 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output exactly matches the expected output.', 'hallucination_rate': 0.0}
+2026-02-15 17:15:54,240 | INFO | Evaluating golden example ID: eb689cbb-cea7-4a7b-b994-9be06a2bb69c with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'is FastAPI is a  web framework?'}
+2026-02-15 17:15:54,240 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+is FastAPI is a  web framework?
+
+2026-02-15 17:16:02,341 | INFO | Model output: Yes, FastAPI is a modern web framework for building APIs with Python.
+2026-02-15 17:16:09,067 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output exactly matches the expected output.', 'hallucination_rate': 0.0}
+2026-02-15 17:19:48,721 | INFO | Starting evaluation for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744, version_id: d135a66f-0f0a-454e-9b2e-087b7213853e
+2026-02-15 17:19:48,740 | INFO | Loaded prompt version: <app.models.prompt.PromptVersion object at 0x000001E6613A0FD0>
+2026-02-15 17:19:48,741 | INFO | Found 4 golden examples
+2026-02-15 17:19:48,741 | INFO | Beginning evaluation loop over golden examples
+2026-02-15 17:19:48,741 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010747 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'What is FastAPI?'}
+2026-02-15 17:19:48,741 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+What is FastAPI?
+
+2026-02-15 17:19:53,463 | INFO | Model output: FastAPI is a modern web framework for building APIs with Python.
+2026-02-15 17:19:58,998 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output matches exactly with the expected output.', 'hallucination_rate': 0.0}
+2026-02-15 17:19:59,006 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010745 with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'Who created FastAPI?'}
+2026-02-15 17:19:59,007 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+Who created FastAPI?
+
+2026-02-15 17:20:05,583 | INFO | Model output: The creator of FastAPI is Tushar Sharma.
+2026-02-15 17:20:11,333 | INFO | Evaluation score: {'score': 0.9, 'reason': 'The model correctly identified the creator of FastAPI as Tushar Sharma.', 'hallucination_rate': 0.05}
+2026-02-15 17:20:11,334 | INFO | Evaluating golden example ID: 9b7c2252-4d63-4cb8-996f-463fd8010741 with variables: {'document': 'FastAPI supports async programming and automatic OpenAPI generation.', 'question': 'What features does FastAPI support?'}
+2026-02-15 17:20:11,334 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI supports async programming and automatic OpenAPI generation.
+
+Question:
+What features does FastAPI support?
+
+2026-02-15 17:20:15,967 | INFO | Model output: FastAPI supports asynchronous programming and automatically generates OpenAPI documentation.
+2026-02-15 17:20:23,488 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output exactly matches the expected output.', 'hallucination_rate': 0.0}
+2026-02-15 17:20:23,488 | INFO | Evaluating golden example ID: eb689cbb-cea7-4a7b-b994-9be06a2bb69c with variables: {'document': 'FastAPI is a modern web framework for building APIs with Python.', 'question': 'is FastAPI is a  web framework?'}
+2026-02-15 17:20:23,488 | INFO | Rendered prompt: Answer the user's question using the document.
+
+Document:
+FastAPI is a modern web framework for building APIs with Python.
+
+Question:
+is FastAPI is a  web framework?
+
+2026-02-15 17:20:28,233 | INFO | Model output: Yes, FastAPI is a modern web framework for building APIs with Python.
+2026-02-15 17:20:33,583 | INFO | Evaluation score: {'score': 1.0, 'reason': 'The model output exactly matches the expected output.', 'hallucination_rate': 0.0}
+2026-02-15 17:25:57,052 | INFO | Triggering experiment: OmarYasser for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744
+2026-02-15 17:26:00,043 | INFO | Experiment task queued with Celery task ID: f9473a23-cdea-458d-b88d-2568f08b10c1
+2026-02-15 17:34:14,240 | INFO | Triggering experiment: Test1 for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744
+2026-02-15 17:34:14,699 | INFO | Experiment task queued with Celery task ID: 728673d1-c177-4b6e-8662-7362a93bd505
+2026-02-15 17:47:48,883 | INFO | Triggering experiment: First_Experiment for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744
+2026-02-15 17:47:49,251 | INFO | Experiment task queued with Celery task ID: 96e905a4-fa41-4e7a-a122-7a44bab29894
+2026-02-15 17:49:19,583 | INFO | Triggering experiment: First_Experiment for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744
+2026-02-15 17:49:19,919 | INFO | Experiment task queued with Celery task ID: 5bf40847-d70f-4c7c-9065-a052b2f28d5c
+2026-02-15 17:51:16,883 | INFO | Triggering experiment: First_Experiment for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744
+2026-02-15 17:51:17,215 | INFO | Experiment task queued with Celery task ID: 1d9f5224-5ef4-4d6e-bfed-28a2692f3adc
+2026-02-15 17:56:51,611 | INFO | Triggering experiment: First_Experiment1 for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744
+2026-02-15 17:56:51,941 | INFO | Experiment task queued with Celery task ID: b57c82ef-3f70-4894-ba22-7c809f7b11ce
+2026-02-15 18:00:35,783 | INFO | Triggering experiment: First_Experiment2 for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744
+2026-02-15 18:00:36,375 | INFO | Experiment task queued with Celery task ID: e89d2db0-2f9f-42bb-9318-bd0e1e63f059
+2026-02-15 18:02:15,468 | INFO | Triggering experiment: First_Experiment3 for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744
+2026-02-15 18:02:15,852 | INFO | Experiment task queued with Celery task ID: a213213b-f945-43ee-9e0e-57c3ad4cffa2
+2026-02-15 18:05:11,925 | INFO | Triggering experiment: First_Experiment4 for prompt_id: 93c8a54c-4722-4787-968b-b33c9136e744
+2026-02-15 18:05:11,968 | INFO | Experiment task queued with Celery task ID: 759df1ab-eba8-4bed-839e-dd1cfdbf3988

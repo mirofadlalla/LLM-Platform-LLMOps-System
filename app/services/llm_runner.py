@@ -37,5 +37,6 @@ def call_llama(
         logger.info(f"LLM call successful. Input tokens: {input_tokens}, Output tokens: {output_tokens}")
         return output, input_tokens, output_tokens
     except Exception as e:
+        print(f"Error calling LLM: {str(e)}")
         logger.error(f"Error calling LLM: {str(e)}", exc_info=True)
         raise

@@ -12,6 +12,7 @@ def run_experiment(self, prompt_id: str, experiment_name: str):
     db = SessionLocal()
 
     try:
+        logging.info(f"Starting experiment: {experiment_name} for prompt_id: {prompt_id}")
         experiment = Experiment(
             name=experiment_name,
             prompt_id=prompt_id,
@@ -20,14 +21,20 @@ def run_experiment(self, prompt_id: str, experiment_name: str):
         db.add(experiment)
         db.commit()
         db.refresh(experiment)
+        logging.info(f"Experiment record created with ID: {experiment.id}")
 
+        logging.info(f"Fetching prompt versions for prompt_id: {prompt_id}")
         prompt_versions = db.query(PromptVersion).filter_by(prompt_id=prompt_id).all()
         if not prompt_versions:
             raise ValueError("No prompt versions found")
+        logging.info(f"Found {len(prompt_versions)} prompt versions")
 
+        logging.info(f"Fetching golden examples for prompt_id: {prompt_id}")
         golden_examples = db.query(GoldenExample).filter_by(prompt_id=prompt_id).all()
         if not golden_examples:
             raise ValueError("No golden examples found")
+        logging.info(f"Found {len(golden_examples)} golden examples")
+
 
         results_to_add = []
 
@@ -44,7 +51,9 @@ def run_experiment(self, prompt_id: str, experiment_name: str):
                 except Exception as e:
                     logging.warning(f"Failed example: {example.id}, reason: {e}")
                     continue
-
+                
+                print(type(score.get('hallucination_rate', 0)))
+                print(type(score['score']))
                 hallucination_rate.append(score.get('hallucination_rate', 0))
                 _score.append(score['score'])
 

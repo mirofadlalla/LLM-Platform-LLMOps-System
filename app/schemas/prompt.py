@@ -2,7 +2,6 @@ from pydantic import BaseModel
 from typing import List, Optional
 
 from datetime import datetime
-from pydantic import BaseModel
 from uuid import UUID
 
 ### Prompt Management + Versioning ###

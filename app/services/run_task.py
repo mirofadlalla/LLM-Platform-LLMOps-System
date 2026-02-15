@@ -5,13 +5,20 @@ from app.models import PromptVersion, Run, CostLog
 from app.services.prompt_renderer import render_prompt
 import logging
 
-@CeleryApp.task(bind=True, autoretry_for=(Exception,), retry_kwargs={"max_retries": 3, "countdown": 5}, name='app.services.run_task.run_prompt_task')
+@CeleryApp.task(bind=True,
+                autoretry_for=(Exception,),
+                retry_kwargs={"max_retries": 3,
+                "countdown": 5}, 
+                name='app.services.run_task.run_prompt_task'
+)
 def run_prompt_task(self, run_id: str, payload: dict):
     # Lazy import - only load when task is actually executed
+    logging.info(f"run_prompt_task started")
     from app.services.llm_runner import call_llama
     
     db = SessionLocal()
     logging.info(f"Starting run_prompt_task for run_id: {run_id}")
+    logging.info(f"Payload variables: {payload.get('variables')}")
     try:
         run = db.query(Run).filter(Run.id == run_id).first()
         if not run:

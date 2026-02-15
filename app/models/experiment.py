@@ -30,6 +30,7 @@ class ExperimentResult(Base):
     avg_score = Column(Float)
     min_score = Column(Float)
     max_score = Column(Float)
+    avg_hallucination_rate = Column(Float, nullable=True)
     failure_count = Column(Float)
     total_examples = Column(Float)
 

@@ -27,12 +27,13 @@ from app.schemas.prompt import (
     PromptVersionResponse,
 )
 from app.schemas.run import RunRequest, RunResponse
+from app.schemas.experiments import ExperimentRunCreate
 from app.schemas.evaluation import GoldenExampleCreate, EvaluationResponse
 from app.services.prompt_renderer import render_prompt
 from app.services.prompt_diff import diff_templates
 from app.services.evaluator import similarity_score
 from app.services.llm_runner import call_llama
-from app.services import run_experiment
+from app.services.run_experiment import run_experiment
 from app.services.run_task import run_prompt_task
 
 logger = logging.getLogger(__name__)
@@ -45,6 +46,8 @@ if not logger.handlers:
 
 router = APIRouter()
 
+
+# Create a new prompt with initial version
 @router.post(
     "/prompts",
     response_model=PromptCreateResponse
@@ -73,7 +76,24 @@ def create_prompt(
         "version": version.version
     }
 
+# Get list of prompts with pagination
+@router.get("/prompts")
+def list_prompts(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
+    prompts = (
+        db.query(Prompt)
+        .order_by(Prompt.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    return prompts
 
+
+# Create a new version of an existing prompt
 @router.post(
     "/prompts/{prompt_id}/versions",
     response_model=PromptVersionResponse
@@ -124,17 +144,47 @@ def run_prompt(
     )
     db.add(run)
     db.commit()
-
+    
+    logger.info(f"Created run: {run.id} for prompt_version: {payload.prompt_version_id}")
     # fire async task - use positional arguments
-    run_prompt_task.delay(
-        str(run.id),
-        payload.dict(),
-    )
+    try:
+        task_result = run_prompt_task.delay(
+            str(run.id),
+            payload.dict(),
+        )
+        logger.info(f"Task queued with Celery task ID: {task_result.id}")
+    except Exception as e:
+        print(f"ERROR: Failed to queue task: {str(e)}")
+        logger.error(f"Failed to queue task: {str(e)}", exc_info=True)
+        run.status = "failed"
+        db.commit()
+        raise
 
     return {
         "run_id": str(run.id),
+        "task_id": task_result.id,
         "status": "pending",
     }
+
+# List all runs with pagination
+@router.get("/runs")
+def list_runs(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(get_api_key),
+):
+    rate_limit(api_key)
+    
+    runs = (
+        db.query(Run)
+        .order_by(Run.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    
+    return runs
 
 # Endpoint to check task status and get results
 @router.get("/task-status/{task_id}")
@@ -322,6 +372,20 @@ def create_golden_example(
     }
 
 
+# List golden examples for a prompt
+@router.get("/prompts/{prompt_id}/golden-examples")
+def list_golden_examples(
+    prompt_id: str,
+    db: Session = Depends(get_db),
+):
+    examples = (
+        db.query(GoldenExample)
+        .filter(GoldenExample.prompt_id == prompt_id)
+        .all()
+    )
+    return examples
+
+
 # Evaluate a prompt version against its golden examples
 @router.post(
     "/prompts/{prompt_id}/versions/{version_id}/evaluate",
@@ -402,20 +466,35 @@ async def evaluate_prompt_version(
 # endpoint to trigger experiment run
 @router.post("/experiments/run")
 def trigger_experiment_run(
-    prompt_id: str,
-    experiment_name: str,
+    playload : ExperimentRunCreate,
     api_key: str = Depends(get_api_key),
 ):
     rate_limit(api_key)
+    
+    logger.info(f"Triggering experiment: {playload.experiment_name} for prompt_id: {playload.prompt_id}")
+    print(f"\n{'='*60}")
+    print(f"API: POST /experiments/run - Triggering Experiment")
+    print(f"Experiment Name: {playload.experiment_name}")
+    print(f"Prompt ID: {playload.prompt_id}")
+    print(f"Queuing async task...")
 
     # fire async task - use positional arguments
-    run_experiment.delay(
-        prompt_id,
-        experiment_name,
-    )
+    try:
+        task_result = run_experiment.delay(
+            playload.prompt_id,
+            playload.experiment_name,
+        )
+        print(f"Task queued successfully! Task ID: {task_result.id}")
+        logger.info(f"Experiment task queued with Celery task ID: {task_result.id}")
+    except Exception as e:
+        print(f"ERROR: Failed to queue task: {str(e)}")
+        logger.error(f"Failed to queue experiment task: {str(e)}", exc_info=True)
+        raise
+    
+    print(f"{'='*60}\n")
 
     return {
-        "message": f"Experiment '{experiment_name}' is running. Check results later."
+        "message": f"Experiment '{playload.experiment_name}' is running. Check results later."
     }
 
 # experiments results endpoint
@@ -444,3 +523,22 @@ def get_experiment_status(
         "status": experiment.status,
         "results": results
     }
+
+
+# List all experiments with pagination
+@router.get("/experiments")
+def list_experiments(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    api_key: str = Depends(get_api_key),
+):
+    rate_limit(api_key)
+    experiments = (
+        db.query(Experiment)
+        .order_by(Experiment.created_at.desc())
+        .offset(skip)
+        .limit(limit)
+        .all()
+    )
+    return experiments
