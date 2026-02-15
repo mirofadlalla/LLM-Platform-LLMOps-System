@@ -1,790 +1,869 @@
-# LLM-Platform-LLMOps-System
+# LLM Operations Platform
 
-## Overview
-A comprehensive FastAPI-based LLMOps platform for managing, versioning, and executing LLM prompts with built-in security, rate limiting, asynchronous task execution, and advanced evaluation capabilities. Designed to streamline prompt engineering workflows with experiment tracking, golden examples management, and automated quality assessment.
+A comprehensive platform for managing, testing, and optimizing language model prompts with experiment tracking and evaluation capabilities.
 
-## ✅ Key Features
+---
 
-### 1. **Core Architecture**
-- Modern FastAPI application with modular structure (api, models, schemas, services, core)
-- PostgreSQL database integration with SQLAlchemy ORM
-- Alembic migrations for database version control
-- Asynchronous task processing with Celery for long-running operations
+## 🚀 Key Features
 
-### 2. **Comprehensive Database Models**
-- **User**: User management with UUID primary keys and timestamps
-- **APIKey**: API key authentication with user relationships and activation status
-- **Prompt**: Prompt templates with name, description, and versioning support
-- **PromptVersion**: Full version control for prompts with template storage and activation tracking
-- **Run**: Execution logs for prompt runs with cost tracking and status monitoring
-- **CostLog**: Financial tracking for LLM API calls
-- **GoldenExample**: Reference input-output pairs for prompt evaluation
-- **Experiment**: Batch evaluation experiments across multiple prompt versions
-- **ExperimentResult**: Detailed results with scoring metrics (avg/min/max scores, hallucination rates, failure counts)
-- **EvaluationResult**: Individual evaluation results with similarity scores and hallucination detection
+### Real LLM Pain Points Addressed 🎯
+- **Prompt Regression** - Track how prompt changes affect model output across versions
+- **Hallucinations** - Detect and measure hallucination rates in LLM responses  
+- **Cost Tracking** - Monitor token usage and compute costs per run
+- **Silent Degradation** - Catch performance drops with automated testing against golden examples
 
-### 3. **Comprehensive API Endpoints (v1)**
+### Core Capabilities ✅
+- **✅ LLM-based Evaluation Engine** - Automated scoring with hallucination detection
+- **✅ Prompt Regression Testing** - Test all prompt versions against consistent golden examples
+- **✅ Prompt Versioning & Experiments** - Track and compare multiple prompt versions
+- **✅ Cost & Token Tracking** - Monitor latency, tokens, and cost for every run
+- **✅ Clear API Design + DB Models** - Well-structured SQLAlchemy models and FastAPI endpoints
+- **✅ Celery + Async Workloads** - Background processing for long-running LLM operations
+- **✅ Golden Examples** - Reference test cases for regression detection
 
-**Prompt Management:**
-- **POST /api/v1/prompts**: Create new prompts with initial template
-- **POST /api/v1/prompts/{prompt_id}/versions**: Create new versions of existing prompts
-- **GET /api/v1/prompts/{prompt_id}/versions**: List all versions of a prompt with metadata
+### Backend
+- **FastAPI** - Modern Python web framework for the API
+- **PostgreSQL** - Reliable database with Alembic migrations
+- **Celery** - Async task processing with Redis message broker
+- **LLM Integration** - Singleton pattern for efficient LLM usage (HuggingFace Inference API)
+- **Rate Limiting** - Built-in rate limiting via Redis and API keys
+- **API Key Authentication** - Bearer token authentication for secure API access
 
-**Prompt Execution:**
-- **POST /api/v1/run**: Execute prompts with specified model (returns immediately, processes asynchronously)
-- **GET /api/v1/task-status/{task_id}**: Check execution status and retrieve results
+### Frontend
+- **React + Vite** - Fast, modern UI with Vite build tool
+- **Tailwind CSS** - Responsive and clean styling
+- **Interactive Pages**:
+  - Dashboard - Overview of all experiments
+  - Experiments - Create and manage experiments
+  - Prompts - Prompt library and management
+  - Run Playground - Test prompts interactively
+  - Evaluation Results - View detailed evaluation metrics
+  - Analytics - Performance insights
+  - Settings - Configuration management
 
-**Golden Examples & Evaluation:**
-- **POST /api/v1/golden-examples**: Create golden examples for evaluation
-- **POST /api/v1/run-experiment**: Trigger comprehensive experiments across prompt versions
-- **GET /api/v1/experiment-results/{experiment_id}**: Retrieve experiment results with metrics
+---
 
-**System Health:**
-- **GET /api/v1/health**: Health check endpoint
+## 🏗️ Architecture
 
-### 4. **Security & Authentication**
-- API key-based authentication system with activation control
-- Request ID middleware for request tracking and debugging
-- Protected endpoints with API key validation on all critical operations
+### System Architecture
 
-### 5. **Advanced Rate Limiting**
-- Per-API-key rate limiting middleware
-- Cost-based tracking for API calls
-- Prevents abuse while allowing legitimate usage
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Frontend (React)                        │
+│  ┌──────────────┬──────────────┬──────────────────────────┐  │
+│  │  Dashboard   │ Experiments  │ Prompts │ Playground    │  │
+│  │  Analytics   │ Evaluations  │ Settings                │  │
+│  └──────────────┴──────────────┴──────────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+                         │ HTTP/REST
+                         ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   FastAPI Backend                            │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  API Routes (v1)                                      │   │
+│  │  • /health         - Health check                    │   │
+│  │  • /prompts        - Prompt management               │   │
+│  │  • /experiments    - Experiment operations           │   │
+│  │  • /runs           - Run management                  │   │
+│  │  • /evaluations    - Evaluation results              │   │
+│  │  • /protected      - Protected endpoints             │   │
+│  └──────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  Core Services                                        │   │
+│  │  • LLM Singleton    - LLM integration                │   │
+│  │  • Database         - PostgreSQL connection          │   │
+│  │  • Security         - API Key authentication         │   │
+│  │  • Rate Limiting    - API protection                 │   │
+│  │  • Middleware       - Request/response handling      │   │
+│  └──────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │  Business Logic Services                              │   │
+│  │  • llm_runner       - Execute prompts with LLM       │   │
+│  │  • evaluator        - Evaluation & scoring           │   │
+│  │  • prompt_renderer  - Template rendering             │   │
+│  │  • prompt_diff      - Version comparison             │   │
+│  │  • run_experiment   - Orchestrate experiments        │   │
+│  │  • run_task         - Background task manager        │   │
+│  └──────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+         │                     │                  │
+         ▼                     ▼                  ▼
+    ┌─────────┐          ┌──────────┐       ┌──────────┐
+    │PostgreSQL│          │ Celery   │       │  Docker  │
+    │Database  │          │  Queue   │       │Container │
+    │          │          │ Workers  │       │          │
+    └─────────┘          └──────────┘       └──────────┘
+```
 
-### 6. **Intelligent Services**
+### Technology Stack
 
-**PromptRenderer**: 
-- Template rendering engine for dynamic prompts with variable substitution
-- Support for complex prompt structures with conditional logic
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18, Vite, Tailwind CSS, ESLint |
+| **Backend** | Python 3.9+, FastAPI, Pydantic |
+| **Database** | PostgreSQL with SQLAlchemy ORM |
+| **Migrations** | Alembic |
+| **Task Queue** | Celery + Redis |
+| **Containerization** | Docker, Docker Compose |
+| **Authentication** | API Key with Bearer Token |
+| **LLM Provider** | HuggingFace Inference API |
 
-**LLMRunner**: 
-- Integration with HuggingFace Inference Client
-- Model abstraction for easy switching between different LLM providers
-- Support for Qwen models and extensible architecture
+---
 
-**Evaluator**: 
-- Semantic similarity scoring between expected and actual outputs
-- Hallucination detection and rate calculation
-- Configurable evaluation metrics
+## 📋 Project Structure & Files
 
-**Run Experiment**: 
-- Batch evaluation across multiple prompt versions
-- Golden example-based comparison
-- Comprehensive metrics collection and aggregation
+```
+llmops/
+│
+├── 📄 Core Configuration Files
+│   ├── alembic.ini              # Alembic database migration config
+│   ├── requirements.txt          # Python dependencies
+│   ├── docker-compose.prod.yml  # Production Docker Compose setup
+│   ├── Dockerfile               # Docker image definition
+│   └── README.md                # Project documentation
+│
+├── 📁 app/                       # FastAPI Backend Application
+│   ├── main.py                  # FastAPI app entry point
+│   │
+│   ├── api/v1/                  # API Routes (Version 1)
+│   │   ├── __init__.py
+│   │   ├── health.py            # Health check endpoint
+│   │   ├── protected.py         # Protected/authenticated endpoints
+│   │   ├── run.py               # Run management endpoints
+│   │   └── __pycache__/
+│   │
+│   ├── core/                    # Core Application Setup
+│   │   ├── config.py            # Configuration settings
+│   │   ├── database.py          # Database connection & sessions
+│   │   ├── celery_app.py        # Celery configuration
+│   │   ├── llm_singleton.py     # LLM instance management
+│   │   ├── security.py          # API Key & authentication logic
+│   │   ├── middleware.py        # Request/response middleware
+│   │   ├── rate_limit.py        # Rate limiting logic
+│   │   └── __pycache__/
+│   │
+│   ├── models/                  # Database Models (SQLAlchemy)
+│   │   ├── __init__.py
+│   │   ├── base.py              # Base model class
+│   │   ├── user.py              # User model
+│   │   ├── prompt.py            # Prompt model with versioning
+│   │   ├── experiment.py        # Experiment configuration model
+│   │   ├── run.py               # Experiment run model
+│   │   ├── evaluation.py        # Evaluation results model
+│   │   └── __pycache__/
+│   │
+│   ├── schemas/                 # Pydantic Request/Response Schemas
+│   │   ├── prompt.py            # Prompt request/response schemas
+│   │   ├── experiments.py       # Experiment schemas
+│   │   ├── run.py               # Run schemas
+│   │   ├── evaluation.py        # Evaluation schemas
+│   │   └── __pycache__/
+│   │
+│   ├── services/                # Business Logic Services
+│   │   ├── __init__.py
+│   │   ├── llm_runner.py        # Execute prompts with LLM
+│   │   ├── evaluator.py         # Evaluation & scoring logic
+│   │   ├── prompt_renderer.py   # Template rendering
+│   │   ├── prompt_diff.py       # Version comparison
+│   │   ├── run_experiment.py    # Experiment orchestration
+│   │   ├── run_task.py          # Background task management
+│   │   └── __pycache__/
+│   │
+│   └── __pycache__/
+│
+├── 📁 frontend/                 # React Frontend Application
+│   ├── package.json             # Node.js dependencies
+│   ├── vite.config.js           # Vite build configuration
+│   ├── tailwind.config.js       # Tailwind CSS configuration
+│   ├── postcss.config.js        # PostCSS configuration
+│   ├── eslint.config.js         # ESLint configuration
+│   ├── index.html               # HTML entry point
+│   │
+│   ├── src/
+│   │   ├── main.jsx             # React entry point
+│   │   ├── App.jsx              # Main App component
+│   │   ├── App.css              # App styles
+│   │   ├── index.css            # Global styles
+│   │   │
+│   │   ├── components/          # Reusable Components
+│   │   │   ├── Layout.jsx       # Main layout wrapper
+│   │   │   ├── Modal.jsx        # Modal component
+│   │   │   ├── ExperimentResultsModal.jsx    # Experiment results
+│   │   │   ├── RunPromptModal.jsx            # Run prompt form
+│   │   │   ├── EvaluationResults.jsx         # Evaluation display
+│   │   │   └── GoldenExamples.jsx            # Golden examples UI
+│   │   │
+│   │   ├── pages/               # Page Components
+│   │   │   ├── Dashboard.jsx    # Overview dashboard
+│   │   │   ├── Experiments.jsx  # Experiments management
+│   │   │   ├── Prompts.jsx      # Prompt library
+│   │   │   ├── RunPlayground.jsx # Interactive testing
+│   │   │   ├── Analytics.jsx    # Performance analytics
+│   │   │   └── Settings.jsx     # Configuration
+│   │   │
+│   │   ├── services/            # API Client
+│   │   │   └── api.js           # REST API wrapper
+│   │   │
+│   │   ├── assets/              # Static assets
+│   │   │
+│   │   └── (other frontend files)
+│   │
+│   ├── public/                  # Static files served directly
+│   └── node_modules/           # NPM packages
+│
+├── 📁 alembic/                  # Database Migrations
+│   ├── env.py                   # Alembic environment config
+│   ├── alembic.ini             # Migration settings
+│   ├── script.py.mako          # Migration template
+│   │
+│   ├── versions/               # Migration Files
+│   │   ├── c6633d3a19a7_initial_schema.py
+│   │   ├── add_status_to_runs.py
+│   │   ├── add_avg_hallucination_rate_to_experiment_results.py
+│   │   ├── add_golden_examples_and_evaluation*.py
+│   │   ├── add_is_active_and_created_at_to_prompt*.py
+│   │   ├── add_status_for_experiment.py
+│   │   ├── add_reason_to_evaluation_result.py
+│   │   └── __pycache__/
+│   │
+│   ├── README
+│   └── __pycache__/
+│
+├── 📁 tasks/                    # Standalone Background Tasks
+│   └── run_prompt_task.py       # Celery task for running prompts
+│
+├── 📁 diagrams/                 # Architecture diagrams
+│
+└── 📁 digrams/                  # (Alternative diagrams folder)
+```
 
-**PromptDiffer**: 
-- Detailed comparison between prompt versions
-- Shows what changed between iterations
+---
 
-### 7. **Asynchronous Task Execution**
-- Celery integration for background task processing
-- Supports long-running experiments without blocking API responses
-- Task status tracking and result retrieval
-- Error handling and automatic retries
+## 🐳 Docker Setup
 
-### 8. **Configuration**
-- Environment-based configuration using Pydantic Settings
-- Support for PostgreSQL connection pooling
-- HuggingFace API integration for model inference
-- Weights & Biases integration support for experiment tracking
-- .env file support for sensitive credentials
+### Docker Files
 
-## Tech Stack
-- **Framework**: FastAPI (Python async web framework)
-- **Web Server**: Uvicorn (ASGI server)
-- **Database**: PostgreSQL (relational database)
-- **ORM**: SQLAlchemy (Python SQL toolkit)
-- **Migration Tool**: Alembic (database migrations)
-- **Task Queue**: Celery (distributed task processing)
-- **Message Broker**: Redis (task queue broker and cache)
-- **Containerization**: Docker & Docker Compose
-- **Monitoring**: Celery Flower (task monitoring dashboard)
-- **Authentication**: API Key-based (custom implementation)
-- **LLM Integration**: HuggingFace Inference Client (model inference)
-- **Language**: Python 3.x
+**Dockerfile** - Production Image
+```dockerfile
+# Contains multi-stage build for backend services
+# Installs Python dependencies
+# Exposes port 8000 for FastAPI
+```
 
-## 🐳 Docker Setup (Production)
+**docker-compose.prod.yml** - Production Orchestration
+```yaml
+# Services defined:
+# - FastAPI Backend (port 8000)
+# - PostgreSQL Database (port 5432)
+# - Celery Worker (background tasks)
+# - Redis/Message Broker (if needed)
+```
 
-A production-ready Docker setup with enterprise-grade hardening, security best practices, resource limits, and automatic scaling.
-
-### Architecture Overview
-
-The Docker setup includes:
-- **PostgreSQL** - Primary database with health checks and persistent volumes
-- **Redis** - Message broker for Celery and caching with AOF persistence
-- **FastAPI** - Main API application with multi-worker setup (4 workers)
-- **Celery Worker** - Asynchronous task processor for long-running operations
-- **Flower** - Celery monitoring dashboard with basic auth protection
-- **Migrate Service** - Dedicated database migration runner (prevents race conditions)
-
-### Quick Start
-
-Production setup with security hardening and resource limits:
+### Docker Commands
 
 ```bash
-# 1. Create secure .env file
-cp .env.example .env
+# Build images and start all services
+docker-compose -f docker-compose.prod.yml up --build
 
-# 2. Update .env with strong credentials
-# IMPORTANT: Change these values!
-#   - POSTGRES_PASSWORD - Use a strong password
-#   - API_SECRET_KEY - Generate a secure key
-#   - HUGGINGFACE_API_KEY
-#   - FLOWER_USERNAME and FLOWER_PASSWORD - For dashboard access
-
-# 3. Start production services
+# Run in background
 docker-compose -f docker-compose.prod.yml up -d
 
-# 4. Verify services are running
-docker-compose -f docker-compose.prod.yml ps
-```
-
-**Access Services:**
-- **API**: http://localhost:8000/api/v1/*
-- **API Docs**: http://localhost:8000/docs
-- **Celery Monitoring**: http://localhost:5555 (with basic auth)
-- **Health Check**: http://localhost:8000/api/v1/health
-
-### Configuration
-
-#### `.env` (Environment Variables)
-```bash
-# Database
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=your_strong_password    # CHANGE THIS!
-POSTGRES_DB=llmops
-POSTGRES_PORT=5432
-
-# API
-API_SECRET_KEY=your_secret_key            # CHANGE THIS!
-
-# External Services
-HUGGINGFACE_API_KEY=your_hf_key           # Required
-WANDB_API_KEY=your_wandb_key              # Optional
-
-# Flower Dashboard Auth
-FLOWER_USERNAME=admin
-FLOWER_PASSWORD=strong_password           # CHANGE THIS!
-```
-
-### Production Features
-
-- ✅ **Multi-worker Uvicorn** (4 workers) for concurrent request handling
-- ✅ **Resource Limits** - CPU & memory constraints prevent runaway containers
-- ✅ **Restart Policies** - Auto-recovery for failed containers
-- ✅ **Logging Rotation** - 10MB max file size with 3-5 file retention
-- ✅ **Security** - Basic auth on Flower, non-root containers, immutable images
-- ✅ **High Availability** - Health checks, service dependencies, persistent volumes
-- ✅ **Database Migrations** - Dedicated migration service prevents race conditions
-- ✅ **Redis Persistence** - AOF enabled for data durability
-
-### Quick Start - Development
-
-Development setup with hot-reload for fast iteration:
-
-```bash
-# 1. Create environment file from template
-cp .env.example .env
-
-# 2. Edit .env with your credentials
-# Be sure to set:
-#   - POSTGRES_PASSWORD
-#   - HUGGINGFACE_API_KEY
-#   - API_SECRET_KEY
-
-# 3. Start all services with hot-reload enabled
-docker-compose -f docker-compose.dev.yml up -d
-
-# OR use the convenient Makefile command:
-make dev
-
-# 4. Verify services are running
-docker-compose -f docker-compose.dev.yml ps
-```
-
-**Access Development Services:**
-- **API Documentation**: http://localhost:8000/docs
-- **API OpenAPI JSON**: http://localhost:8000/openapi.json
-- **Celery Monitoring**: http://localhost:5555 (username: `admin`, password: `dev123`)
-- **Health Check**: http://localhost:8000/api/v1/health
-
-### Quick Start - Production
-
-Optimized production setup with security hardening and resource limits:
-
-```bash
-# 1. Create secure .env file
-cp .env.example .env
-
-# 2. Update .env with strong credentials
-# IMPORTANT: Change these values!
-#   - POSTGRES_PASSWORD - Use a strong password
-#   - API_SECRET_KEY - Generate a secure key
-#   - HUGGINGFACE_API_KEY
-#   - FLOWER_USERNAME and FLOWER_PASSWORD - For dashboard access
-
-# 3. Start production services
-docker-compose -f docker-compose.prod.yml up -d
-
-# OR use the convenient Makefile command:
-make prod
-
-# 4. Verify services
-docker-compose -f docker-compose.prod.yml ps
-```
-
-**Access Production Services:**
-- **API**: http://localhost:8000/api/v1/*
-- **Celery Monitoring**: http://localhost:5555 (with basic auth)
-
-### Configuration Files
-
-#### `.env` (Environment Variables)
-```bash
-# Database
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=your_password      # CHANGE THIS!
-POSTGRES_DB=llmops
-POSTGRES_PORT=5432
-
-# API
-API_SECRET_KEY=your_secret_key       # CHANGE THIS!
-
-# External Services
-HUGGINGFACE_API_KEY=your_hf_key      # Required
-WANDB_API_KEY=your_wandb_key         # Optional
-
-# Flower Dashboard (Production)
-FLOWER_USERNAME=admin
-FLOWER_PASSWORD=strong_password      # CHANGE THIS!
-```
-
-### Compose Files Explained
-
-| File | Purpose | Use Case | Key Feature |
-|------|---------|----------|-------------|
-| `docker-compose.yml` | Default production-like setup | Default for deployment | No hot-reload, safe for production |
-| `docker-compose.dev.yml` | Development with hot-reload | Local development | `--reload` enabled, debug logging |
-| `docker-compose.prod.yml` | Full production hardening | Production deployment | Multi-workers, resource limits, logging rotation |
-
-## Architecture Overview
-
-### Using Makefile Commands
-
-A `Makefile` is included with convenient commands for Docker operations:
-
-```bash
-# Development
-make dev              # Start with hot-reload
-make dev-down         # Stop development environment
-make dev-logs         # View development logs
-
-# Production
-make prod             # Start production (optimized)
-make prod-down        # Stop production environment
-make prod-logs        # View production logs
-
-# Common Commands
-make up               # Start default configuration
-make down             # Stop all services
-make build            # Build Docker images
-make logs             # View logs from all services
-make logs-api         # View API logs only
-make restart          # Restart all services
-
-# Database Management
-make migrate          # Run pending database migrations
-make migrate-history  # View migration history
-make db-shell         # Open PostgreSQL shell
-make redis-cli        # Open Redis CLI
-
-# Monitoring & Debugging
-make health           # Check service health status
-make stats            # View container resource usage
-make flower           # Open Flower dashboard in browser
-make api-docs         # Open API documentation in browser
-
-# Maintenance
-make clean            # Stop all services and remove volumes (⚠️  DATA LOSS)
-make lint             # Validate docker-compose files
-make env-check        # Check .env file exists
-make quickstart       # Show quick start guide
-
-# View all available commands
-make help
-```
-
-### Service Management
-
-#### Basic Commands
-
-```bash
-# Start services (default/production)
-docker-compose up -d
-
-# Start with development config
-docker-compose -f docker-compose.dev.yml up -d
-
-# Stop all services
-docker-compose down
-
-# View running services
-docker-compose ps
+# Stop services
+docker-compose -f docker-compose.prod.yml down
 
 # View logs
-docker-compose logs -f                    # All services
-docker-compose logs -f api                # Specific service
-docker-compose logs -f celery-worker      # Celery logs
+docker-compose -f docker-compose.prod.yml logs -f
+
+# Execute command in container
+docker-compose -f docker-compose.prod.yml exec api alembic upgrade head
+
+# Remove volumes (clean slate)
+docker-compose -f docker-compose.prod.yml down -v
 ```
 
-#### Advanced Commands
+---
+
+## 🔧 Configuration Files
+
+### Backend Configuration
+
+**alembic.ini**
+- Database migration configuration
+- SQLAlchemy URL setup
+- Migration logging settings
+
+**requirements.txt**
+- Python dependencies
+- Versions pinned for stability
+- Includes: FastAPI, SQLAlchemy, Celery, Pydantic, etc.
+
+**app/core/config.py**
+- Environment variables
+- Database URL
+- LLM API keys
+- API Key authentication settings
+- Celery settings
+
+### Frontend Configuration
+
+**frontend/vite.config.js**
+- Vite dev server setup
+- Build optimization
+- Plugin configuration
+
+**frontend/tailwind.config.js**
+- Tailwind CSS customization
+- Color schemes
+- Component styling
+
+**frontend/package.json**
+- Node.js dependencies
+- Scripts for dev/build/preview
+- Dev server configuration
+
+---
+
+## 🚀 Installation & Setup
+
+### Prerequisites
+- **Python 3.9+** - Backend runtime
+- **Node.js 16+** - Frontend runtime  
+- **PostgreSQL 12+** - Database
+- **Docker & Docker Compose** - For containerized deployment
+- **Git** - Version control
+
+### Step 1: Install Backend
 
 ```bash
-# Rebuild images after code changes
-docker-compose build --no-cache
+# Install Python dependencies
+pip install -r requirements.txt
 
-# Run migrations manually
-docker-compose exec api alembic upgrade head
-
-# Access database shell
-docker-compose exec postgres psql -U postgres -d llmops
-
-# Access Redis CLI
-docker-compose exec redis redis-cli
-
-# View specific service logs
-docker-compose logs --tail=100 api        # Last 100 lines
-docker-compose logs -f --since=10m api    # Last 10 minutes
-
-# Restart a service
-docker-compose restart api
-
-# Remove volumes and clean up
-docker-compose down -v                    # ⚠ Deletes all data!
+# Set up environment variables
+# Create a `.env` file with:
+# DATABASE_URL=postgresql://user:password@localhost/llmops
+# HF_API_TOKEN=your_huggingface_token_here
+# REDIS_URL=redis://localhost:6379/0
 ```
+
+### Step 2: Setup Database
+
+```bash
+# Run migrations
+alembic upgrade head
+
+# Create test API key (optional)
+python create_test_api_key.py
+```
+
+### Step 3: Install Frontend
+
+```bash
+cd frontend
+npm install
+```
+
+### Step 4: Create `.env.local` in frontend/
+```
+VITE_API_URL=http://localhost:8000
+```
+
+---
+
+## 🏃 Running the Application
+
+### Development Setup (Multiple Terminals)
+
+**Terminal 1: FastAPI Backend**
+```bash
+# From root directory
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+- Access: http://localhost:8000
+- Docs: http://localhost:8000/docs
+
+**Terminal 2: React Frontend**
+```bash
+cd frontend
+npm run dev
+```
+- Access: http://localhost:5173
+
+**Terminal 3: Celery Worker** (for async tasks)
+```bash
+celery -A app.core.celery_app worker -l info
+```
+
+**Terminal 4: Celery Beat** (for scheduled tasks - optional)
+```bash
+celery -A app.core.celery_app beat -l info
+```
+
+### Production Deployment with Docker
+
+```bash
+# Build images and start services
+docker-compose -f docker-compose.prod.yml up -d --build
+
+# Run database migrations in container
+docker-compose -f docker-compose.prod.yml exec api alembic upgrade head
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
+
+# Stop all services
+docker-compose -f docker-compose.prod.yml down
+```
+
+---
+
+## 📚 API Documentation
+
+### Interactive API Docs
+When backend is running:
+- **Swagger UI**: http://localhost:8000/docs
+- **ReDoc**: http://localhost:8000/redoc
+
+### API Endpoints
+
+#### Health Check
+```
+GET /api/v1/health
+```
+
+#### Prompt Management
+```
+POST   /api/v1/prompts                          # Create prompt
+GET    /api/v1/prompts                          # List all prompts
+GET    /api/v1/prompts/{prompt_id}/versions     # List prompt versions
+POST   /api/v1/prompts/{prompt_id}/versions     # Create new version
+POST   /api/v1/prompts/{prompt_id}/versions/{version_id}/activate   # Activate version
+GET    /api/v1/prompts/diff                     # Compare versions
+```
+
+#### Golden Examples (for regression testing)
+```
+POST   /api/v1/prompts/{prompt_id}/golden-examples        # Add test case
+GET    /api/v1/prompts/{prompt_id}/golden-examples        # List test cases
+POST   /api/v1/prompts/{prompt_id}/versions/{version_id}/evaluate  # Evaluate version
+```
+
+#### Runs (LLM Execution)
+```
+POST   /api/v1/run               # Execute prompt (returns pending, processes async)
+GET    /api/v1/runs              # List runs
+GET    /api/v1/task-status/{task_id}   # Check execution status
+```
+
+#### Experiments (Batch Testing)
+```
+POST   /api/v1/experiments/run                # Trigger experiment run
+GET    /api/v1/experiments                   # List experiments
+GET    /api/v1/experiments/{experiment_id}/status  # Get results
+```
+
+#### Protected Endpoints
+```
+GET    /api/v1/protected         # Example protected route (requires API key)
+```
+
+---
+
+## 🗄️ Database
 
 ### Database Migrations
 
-Migrations run automatically on startup, but you can manage them manually:
+**Configuration**
+- Alembic handles all schema changes
+- Located in `alembic/versions/`
+- Each migration is timestamped and versioned
+
+**Create New Migration**
+```bash
+alembic revision --autogenerate -m "description of changes"
+```
+
+**Apply Migrations**
+```bash
+# Upgrade to latest
+alembic upgrade head
+
+# Downgrade
+alembic downgrade -1
+
+# Check current version
+alembic current
+```
+
+**Migration History**
+```
+- c6633d3a19a7 - Initial schema (users, prompts, experiments, runs, evaluations)
+- add_status_to_runs - Added status field to runs table
+- add_avg_hallucination_rate_to_experiment_results - Hallucination tracking
+- add_golden_examples_and_evaluation* - Golden examples & evaluation enhancements
+- add_is_active_and_created_at_to_prompt* - Timestamp and status features
+- add_reason_to_evaluation_result - Enhanced evaluation details
+```
+
+### Database Models
+
+| Model | Table | Purpose |
+|-------|-------|---------|
+| **User** | users | User account for API key management |
+| **APIKey** | api_keys | Bearer token keys linked to users |
+| **Prompt** | prompts | Prompt templates with versioning support |
+| **PromptVersion** | prompt_versions | Individual prompt version with template |
+| **Run** | runs | Single LLM execution with metrics (latency, tokens) |
+| **CostLog** | cost_logs | Cost tracking per run in USD |
+| **GoldenExample** | golden_examples | Test cases for regression testing |
+| **Experiment** | experiments | Batch testing run configuration |
+| **ExperimentResult** | experiment_results | Aggregated metrics (avg score, hallucination rate) |
+| **EvaluationResult** | evaluation_results | Individual evaluation score with hallucination detection |
+
+---
+
+## 🔧 Core Services
+
+### Backend Services (`app/services/`)
+
+| Service | Purpose |
+|---------|---------|
+| **llm_runner.py** | Call HuggingFace Inference API, estimate token counts |
+| **evaluator.py** | LLM-based comparison of output vs expected, detects hallucinations |
+| **prompt_renderer.py** | Template filling with variables (simple .format() style) |
+| **prompt_diff.py** | Generate unified diff between prompt versions |
+| **run_experiment.py** | Celery task: tests all versions against all golden examples |
+| **run_task.py** | Celery task: executes single prompt, tracks metrics |
+
+### Core Module (`app/core/`)
+
+| Module | Responsibility |
+|--------|---------------| 
+| **config.py** | Environment variables, app settings |
+| **database.py** | SQLAlchemy session management |
+| **llm_singleton.py** | Single LLM instance for efficiency |
+| **security.py** | API key validation, Bearer token verification |
+| **middleware.py** | Request logging, error handling, request IDs |
+| **rate_limit.py** | Redis-backed rate limiting (60 req/min per key) |
+| **celery_app.py** | Celery configuration with Redis broker |
+
+---
+
+## 📦 Utility Scripts
+
+### Standalone Scripts (Root Level)
+
+**create_test_api_key.py**
+```bash
+python create_test_api_key.py
+```
+Creates test API key for development/testing
+
+**database_design.py**
+Database schema documentation and planning
+
+### Background Tasks (`tasks/`)
+
+**run_prompt_task.py**
+- Celery task for prompt execution
+- Handles long-running operations
+- Integrates with LLM runner
+
+---
+
+## 🎨 Frontend Components
+
+### Page Components (`frontend/src/pages/`)
+
+| Page | Features |
+|------|----------|
+| **Dashboard.jsx** | Overview, recent experiments, stats |
+| **Experiments.jsx** | Create, list, manage experiments |
+| **Prompts.jsx** | Prompt library, versioning |
+| **RunPlayground.jsx** | Interactive prompt testing |
+| **Analytics.jsx** | Performance metrics, charts |
+| **Settings.jsx** | Configuration, preferences |
+
+### Reusable Components (`frontend/src/components/`)
+
+| Component | Purpose |
+|-----------|---------|
+| **Layout.jsx** | Navigation, sidebar, wrapper |
+| **Modal.jsx** | Generic modal container |
+| **ExperimentResultsModal.jsx** | Display experiment results |
+| **RunPromptModal.jsx** | Form to run prompt |
+| **EvaluationResults.jsx** | Show evaluation metrics |
+| **GoldenExamples.jsx** | Manage golden examples |
+
+### API Service (`frontend/src/services/api.js`)
+```javascript
+// Wraps all backend API calls
+// Handles authentication, errors
+// Base URL: VITE_API_URL environment variable
+```
+
+---
+
+## 📊 Data Flows
+
+### Single Run Execution Flow
+```
+1. User calls: POST /api/v1/run with prompt_version_id & variables
+   ↓
+2. API validates API key and rate limits
+   ↓
+3. Creates Run record with status="pending"
+   ↓
+4. Queues Celery task (run_prompt_task)
+   ↓
+5. Returns task_id to client
+   ↓
+6. [Async] Celery worker:
+   → prompt_renderer.py renders template with variables
+   → llm_runner.py calls LLM (HuggingFace Inference API)
+   → Tracks latency_ms, tokens_in, tokens_out
+   → Calculates cost: (tokens_in + tokens_out) * 0.00001
+   → Stores in Run & CostLog tables
+   → Updates status="completed"
+   ↓
+7. User polls: GET /api/v1/task-status/{task_id}
+   ↓
+8. Returns result when task completes
+```
+
+### Experiment (Regression Testing) Flow
+```
+1. User calls: POST /api/v1/experiments/run with prompt_id & experiment_name
+   ↓
+2. API validates API key and rate limits
+   ↓
+3. Creates Experiment record with status="running"
+   ↓
+4. Queues Celery task (run_experiment)
+   ↓
+5. Returns immediately with message
+   ↓
+6. [Async] Celery worker fetches:
+   → All PromptVersion records for this prompt
+   → All GoldenExample test cases for this prompt
+   ↓
+7. For each version × golden_example:
+   → prompt_renderer.py renders template with input_data
+   → llm_runner.py calls LLM
+   → evaluator.py compares output vs expected_output
+   → Calculates: score, hallucination_rate, reason
+   → Stores EvaluationResult
+   ↓
+8. Aggregates per version:
+   → avg_score, min_score, max_score
+   → avg_hallucination_rate
+   → failure_count (scores < 0.5)
+   → Stores ExperimentResult
+   ↓
+9. Updates Experiment status="completed"
+   ↓
+10. User views: GET /api/v1/experiments/{experiment_id}/status
+    → Gets full results with all metrics
+```
+
+### Prompt Evaluation Flow (Single Version)
+```
+1. User calls: POST /api/v1/prompts/{prompt_id}/versions/{version_id}/evaluate
+   ↓
+2. Fetches PromptVersion & all GoldenExamples
+   ↓
+3. For each golden example:
+   → Renders template with input_data
+   → Calls LLM
+   → Evaluates against expected_output
+   → Stores EvaluationResult
+   ↓
+4. Returns average_score & total_tests performed
+```
+
+---
+
+## 🔐 Security Features
+
+### Authentication
+- **API Key Authentication** - Bearer token based API keys stored in database
+- **Rate Limiting** - Prevent API abuse with Redis-backed rate limiting (60 requests/minute per API key)
+- **Protected Routes** - Secured endpoints require valid API key (in `api/v1/protected.py`)
+- **Active/Inactive Status** - API keys can be deactivated without deletion
+
+### Authorization
+- **User-based access control** - Each API key linked to a user
+- **Middleware** - Request validation and logging (in `core/middleware.py`)
+
+### API Key Setup
+```python
+# In core/security.py
+HTTPBearer(auto_error=False) - Validates Bearer tokens
+get_api_key() - Dependency for protecting routes
+```
+
+---
+
+## 🧪 Development Tips
+
+### Best Practices
+
+1. **API Key Authentication**
+   - Generate test key: `python create_test_api_key.py`
+   - Use in requests: `Authorization: Bearer {api_key}`
+   - Rate limited to 60 requests/minute per key
+
+2. **Database Changes**
+   - Always create migrations for schema changes
+   - Test migrations locally first
+   - Keep migrations simple and focused
+
+3. **New API Endpoints**
+   - Add to `app/api/v1/`
+   - Create schemas in `app/schemas/`
+   - Add business logic in `app/services/`
+   - Protect endpoints with `Depends(get_api_key)` if needed
+   - Apply rate limiting: `rate_limit(api_key)`
+
+4. **Frontend Development**
+   - Run `npm run dev` for hot reload
+   - Use ESLint for code quality: `npm run lint`
+   - Check components in isolation
+   - Pass API key via Authorization header in API service
+
+5. **Task Management (Celery)**
+   - Monitor Celery with: `celery -A app.core.celery_app inspect active`
+   - Check task status via: `GET /api/v1/task-status/{task_id}`
+   - Logs go to `app.log`
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+**401 Unauthorized / Invalid API Key**
+```
+Generate test key: python create_test_api_key.py
+Verify Authorization header: Authorization: Bearer {api_key}
+Check API key is active in database
+```
+
+**Database Connection Error**
+```
+Check DATABASE_URL in .env
+Verify PostgreSQL is running
+Run: alembic upgrade head
+```
+
+**Frontend API Errors**
+```
+Check VITE_API_URL in frontend/.env.local
+Verify backend is running on port 8000
+Check CORS configuration in app/core/middleware.py
+Ensure Authorization header is being sent with API key
+```
+
+**Celery Tasks Not Running**
+```
+Ensure Celery worker is running
+Check celery logs for errors
+Verify Redis is running and REDIS_URL is correct in .env
+Check queue routing in app/core/celery_app.py
+```
+
+**Rate Limit Exceeded (429)**
+```
+Too many requests with same API key
+Check Redis is running for rate limiting
+Rate limit: 60 requests per minute per API key
+```
+
+**HuggingFace API Errors**
+```
+Check HF_API_TOKEN is valid in .env
+Verify internet connection
+Check HuggingFace API status
+```
+
+**Docker Issues**
+```
+docker-compose -f docker-compose.prod.yml down -v  # Remove volumes
+docker-compose -f docker-compose.prod.yml up --build  # Fresh build
+```
+
+---
+
+## 📈 Performance Optimization
+
+### Implemented Features
+
+- **LLM Singleton** - Reuse LLM instance across requests
+- **Database Connection Pooling** - SQLAlchemy session management
+- **Celery Queue** - Offload long-running tasks
+- **Rate Limiting** - Prevent API abuse
+- **Vite Build** - Optimized frontend bundles
+
+### Monitoring
+
+- **Health Check**: `GET /api/v1/health` - System status
+- **Celery Monitoring**: Built-in Celery inspection tools
+- **Database Metrics**: SQLAlchemy query logs
+
+---
+
+## 📝 Environment Variables
+
+### Backend (.env file)
 
 ```bash
-# View migration history
-docker-compose exec api alembic history
+# Database
+DATABASE_URL=postgresql://user:password@localhost:5432/llmops
 
-# Create new migration
-docker-compose exec api alembic revision --autogenerate -m "description"
+# Redis (for Celery message broker and rate limiting)
+REDIS_URL=redis://localhost:6379/0
 
-# Apply migrations
-docker-compose exec api alembic upgrade head
+# LLM Provider (HuggingFace Inference API)
+HF_API_TOKEN=hf_xxxxxxxxxxxx
 
-# Rollback migrations
-docker-compose exec api alembic downgrade -1
-
-# Check current database version
-docker-compose exec api alembic current
+# App
+DEBUG=True
+ENVIRONMENT=development
+LOG_LEVEL=INFO
 ```
 
-### Performance & Security Features
-
-#### Development (docker-compose.dev.yml)
-- ✅ Hot-reload enabled for code changes
-- ✅ Debug logging (level=debug for Celery)
-- ✅ Volume mounts for live code editing
-- ✅ Development-friendly Flower password
-
-#### Production (docker-compose.prod.yml)
-- ✅ **Multi-worker Uvicorn** (4 workers) for concurrent requests
-- ✅ **Resource Limits** - Memory & CPU constraints per service (prevents runaway containers)
-- ✅ **Restart Policies** - Automatically restart failed containers for high availability
-- ✅ **Logging Rotation** - 10MB max file size, max 3-5 files (prevents disk fill-up)
-- ✅ **No hot-reload** - Optimized for performance
-- ✅ **Basic Auth** - Protected Flower dashboard access
-- ✅ **No volume mounts** - Uses COPY for immutable containers
-- ✅ **AOF Persistence** - Redis data persists across restarts
-- ✅ **Dedicated Migration Service** - Prevents race conditions when scaling
-
-### Docker Files Overview
-
-| File | Purpose |
-|------|---------|
-| [`Dockerfile`](Dockerfile) | Base image for all services with Python 3.11, security best practices |
-| [`docker-compose.yml`](docker-compose.yml) | Default balanced configuration with migrate service |
-| [`docker-compose.dev.yml`](docker-compose.dev.yml) | Development configuration with hot-reload |
-| [`docker-compose.prod.yml`](docker-compose.prod.yml) | Production configuration with hardening |
-| [`Makefile`](Makefile) | Convenient commands for Docker operations |
-| [`.dockerignore`](.dockerignore) | Excludes unnecessary files from Docker image |
-| [`.env.example`](.env.example) | Template for environment variables |
-| [`DOCKER_BEST_PRACTICES.md`](DOCKER_BEST_PRACTICES.md) | Detailed explanations of all improvements made |
-| [`DOCKER_CHANGELOG.md`](DOCKER_CHANGELOG.md) | Summary of changes and enhancements |
-
-### Troubleshooting
-
-#### Services won't start
+### Frontend (frontend/.env.local)
 
 ```bash
-# Check if ports are already in use
-netstat -an | findstr LISTEN          # Windows
-lsof -i -P -n | grep LISTEN           # macOS/Linux
-
-# Check service logs
-docker-compose logs postgres
-docker-compose logs redis
+VITE_API_URL=http://localhost:8000
+VITE_APP_NAME=LLM Operations Platform
 ```
 
-#### Database connection errors
+---
 
-```bash
-# Verify PostgreSQL is healthy
-docker-compose exec postgres pg_isready -U postgres -d llmops
+## 🤝 Contributing
 
-# Check connection string
-docker-compose exec api echo $DATABASE_URL
-```
+### Development Workflow
 
-#### Celery tasks not processing
+1. Create feature branch
+2. Make changes following code style
+3. Add/update database migrations if needed
+4. Test locally with all services running
+5. Commit and push
 
-```bash
-# Check Redis is working
-docker-compose exec redis redis-cli ping     # Should return PONG
+### Code Quality
 
-# View Celery worker logs
-docker-compose logs celery-worker
+- Backend: Follow PEP 8, use type hints
+- Frontend: ESLint enabled, Tailwind for styling
+- Both: Descriptive variable/function names
 
-# Check Celery Flower dashboard
-# Visit http://localhost:5555 and check active tasks
-```
+---
 
-#### Flower dashboard access denied
+## 📄 License
 
-- **Development**: Username `admin`, Password `dev123`
-- **Production**: Use credentials from your `.env` file
+MIT
 
-#### Permissions issues on Linux
+---
 
-```bash
-# Fix volume permissions
-sudo chown -R $(id -u):$(id -g) .
+## 🤝 Support
 
-# Build with buildkit for better caching
-DOCKER_BUILDKIT=1 docker-compose build
-```
-
-### Advanced Configuration
-
-#### Scaling Celery Workers
-
-In `docker-compose.yml`, add multiple worker replicas:
-
-```yaml
-services:
-  celery-worker:
-    # ... existing config ...
-    deploy:
-      replicas: 3  # Run 3 worker instances
-```
-
-#### Custom Database Initialization
-
-To run custom SQL on startup, add to PostgreSQL service:
-
-```yaml
-postgres:
-  volumes:
-    - postgres_data:/var/lib/postgresql/data
-    - ./init.sql:/docker-entrypoint-initdb.d/init.sql  # Runs once on first start
-```
-
-#### Using Docker Secrets (for Swarm mode)
-
-```yaml
-services:
-  api:
-    environment:
-      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
-    secrets:
-      - db_password
-
-secrets:
-  db_password:
-    file: ./secrets/db_password.txt
-```
-
-### Monitoring & Health Checks
-
-All services include health checks in the Docker configuration:
-
-```bash
-# View health status
-docker-compose ps
-
-# Check specific service health
-docker inspect $(docker-compose ps -q api) | jq '.[0].State.Health'
-```
-
-The `migrate` service uses `service_completed_successfully` condition to ensure database is ready before API starts.
-
-### Network Isolation
-
-Services communicate via the `llmops-network` bridge network:
-
-```bash
-# View network details
-docker network inspect llmops_llmops-network
-
-# Services are accessible by hostname (e.g., postgres, redis) within the network
-```
-
-### Environment-Specific Secrets
-
-For different deployment environments:
-
-```bash
-# Development
-cp .env.example .env.dev
-# Edit .env.dev with dev values
-docker-compose -f docker-compose.dev.yml --env-file .env.dev up -d
-
-# Production
-cp .env.example .env.prod
-# Edit .env.prod with prod values (STRONG PASSWORDS!)
-docker-compose -f docker-compose.prod.yml --env-file .env.prod up -d
-```
-
-### Next Steps
-
-After starting with Docker:
-
-1. **Create API Key**: Use `/api/v1/` endpoints to set up your first user
-2. **Create Prompt**: POST to `/api/v1/prompts` with your prompt template
-3. **Monitor Tasks**: Visit Flower dashboard at `http://localhost:5555`
-4. **View Logs**: Use `docker-compose logs` for debugging
-5. **Run Experiments**: Use `/api/v1/run-experiment` endpoint
-
-### Additional Resources
-
-- **[DOCKER_BEST_PRACTICES.md](DOCKER_BEST_PRACTICES.md)** - Comprehensive guide explaining all Docker improvements
-- **[DOCKER_CHANGELOG.md](DOCKER_CHANGELOG.md)** - Detailed summary of changes and enhancements
-- **[Makefile](Makefile)** - Convenient command shortcuts (`make help` for full list)
-- **[.env.example](.env.example)** - Environment variable template
-
-## Project Structure
-```
-alembic/                          # Database migrations and version control
-  └── versions/                   # Individual migration files
-app/
-  ├── api/v1/                     # API endpoints (v1)
-  │   ├── health.py              # Health check endpoint
-  │   ├── run.py                 # Main execution and experiment endpoints
-  │   └── protected.py           # Protected/internal endpoints
-  ├── core/                       # Core configuration and utilities
-  │   ├── config.py              # Pydantic settings and configuration
-  │   ├── database.py            # SQLAlchemy session management
-  │   ├── security.py            # API key authentication logic
-  │   ├── middleware.py          # Request ID and logging middleware
-  │   ├── rate_limit.py          # Rate limiting implementation
-  │   ├── llm_singleton.py       # HuggingFace client initialization
-  │   └── celery_app.py          # Celery task queue configuration
-  ├── models/                     # SQLAlchemy ORM models
-  │   ├── base.py                # Base model class and utilities
-  │   ├── user.py                # User model
-  │   ├── prompt.py              # Prompt and PromptVersion models
-  │   ├── run.py                 # Run and CostLog models
-  │   ├── evaluation.py          # GoldenExample and EvaluationResult models
-  │   └── experiment.py          # Experiment and ExperimentResult models
-  ├── schemas/                    # Pydantic request/response schemas
-  │   ├── prompt.py              # Prompt creation and versioning schemas
-  │   ├── run.py                 # Run request/response schemas
-  │   └── evaluation.py          # Golden example and evaluation schemas
-  └── services/                   # Business logic and integrations
-      ├── llm_runner.py          # LLM inference wrapper
-      ├── prompt_renderer.py     # Template rendering engine
-      ├── evaluator.py           # Evaluation and scoring logic
-      ├── prompt_diff.py         # Prompt version comparison
-      ├── run_task.py            # Async task implementation
-      └── run_experiment.py      # Experiment execution logic
-database_design.py                # Schema and database design documentation
-main.py                           # FastAPI application entry point
-```
-
-
-## 🔧 Recent Fixes & Improvements
-
-### Critical Fixes (Feb 4-6, 2026)
-
-#### 1. **Database Query Null Check Issue**
-- **Problem**: Celery task was failing with `'NoneType' object has no attribute 'status'` because the database query was returning `None`
-- **Fix**: Added proper error handling in [app/services/run_task.py](app/services/run_task.py#L14-L17) to validate that the run exists before accessing its attributes
-- **Impact**: Celery tasks now safely handle database lookups with proper error messages
-
-#### 2. **Invalid HuggingFace Model Name Format**
-- **Problem**: HuggingFace Inference Client was receiving invalid model ID `'Qwen/Qwen2.5-1.5B-Instruct:featherless-ai'` with forbidden `:featherless-ai` suffix
-- **Fix**: Corrected model name to valid format `'Qwen/Qwen2.5-1.5B-Instruct'` in [app/core/llm_singleton.py](app/core/llm_singleton.py#L16)
-- **Impact**: Tasks now successfully authenticate and communicate with HuggingFace API
-
-#### 3. **Enhanced Error Logging & Debugging**
-- **Improvement**: Added comprehensive exception handling with stack traces and context logging
-- **Locations**: 
-  - [app/services/run_task.py](app/services/run_task.py#L51-L57) - Task execution logging
-  - [app/services/run_experiment.py](app/services/run_experiment.py) - Experiment error handling
-- **Benefit**: Enhanced visibility into task failures for faster troubleshooting and debugging
-
-### Feature Implementation Summary
-
-#### Experiment Framework (Completed)
-- ✅ Golden example creation and storage
-- ✅ Batch experiments across multiple prompt versions
-- ✅ Comprehensive scoring metrics (average, min, max scores)
-- ✅ Hallucination detection and rate calculation
-- ✅ Failure tracking per experiment
-- ✅ Experiment status tracking (pending, running, completed, failed)
-
-#### Asynchronous Task Processing (Completed)
-- ✅ Celery background task queue integration
-- ✅ Non-blocking API responses with immediate return of task ID
-- ✅ Task status polling endpoint with state tracking
-- ✅ Result persistence and retrieval
-- ✅ Error recovery and retry mechanisms
-
-#### Evaluation System (Completed)
-- ✅ Semantic similarity scoring between outputs
-- ✅ Hallucination rate calculation
-- ✅ Multi-metric evaluation framework
-- ✅ Individual and aggregate result tracking
-
-## 📋 Setup & Installation
-
-### Prerequisites
-- Python 3.8+
-- PostgreSQL 12+
-- Redis (for Celery task queue)
-- HuggingFace API key
-
-### Environment Setup
-
-1. **Clone and install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-2. **Configure environment variables:**
-   Create a `.env` file in the project root:
-   ```
-   POSTGRES_USER=postgres
-   POSTGRES_PASSWORD=your_password
-   POSTGRES_DB=llmops
-   POSTGRES_HOST=localhost
-   POSTGRES_PORT=5432
-   HUGGINGFACE_API_KEY=your_hf_key
-   WANDB_API_KEY=your_wandb_key
-   API_SECRET_KEY=your_secret_key
-   ```
-
-3. **Initialize the database:**
-   ```bash
-   alembic upgrade head
-   ```
-
-4. **Start Celery worker:**
-   ```bash
-   celery -A app.core.celery_app worker --loglevel=info
-   ```
-
-5. **Start the API server:**
-   ```bash
-   uvicorn app.main:app --reload --port 8000
-   ```
-
-The API will be available at `http://localhost:8000` with interactive docs at `/docs`.
-
-## 🚀 Usage Examples
-
-### Create a Prompt
-```bash
-curl -X POST "http://localhost:8000/api/v1/prompts" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "name": "sentiment-analysis",
-    "description": "Analyze sentiment of text",
-    "template": "Analyze the sentiment of this text: {input}"
-  }'
-```
-
-### Create Golden Examples
-```bash
-curl -X POST "http://localhost:8000/api/v1/golden-examples" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{
-    "prompt_id": "example-id",
-    "input_data": "{\"input\": \"I love this!\"}",
-    "expected_output": "Positive sentiment"
-  }'
-```
-
-### Run an Experiment
-```bash
-curl -X POST "http://localhost:8000/api/v1/run-experiment" \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -d '{
-    "prompt_id": "example-id",
-    "experiment_name": "v1-baseline"
-  }'
-```
-
-## 📊 Current Status
-
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Database integration | ✅ Working | Full SQLAlchemy ORM setup |
-| Celery task queue | ✅ Functional | Async processing operational |
-| HuggingFace API | ✅ Operational | Qwen models integrated |
-| Error handling | ✅ Enhanced | Comprehensive logging in place |
-| Rate limiting | ✅ Working | Per-API-key implementation |
-| Evaluation system | ✅ Complete | Scoring and hallucination detection |
-| Experiment framework | ✅ Complete | Batch evaluation with metrics |
-| API endpoints | ✅ Complete | All v1 endpoints implemented |
-
-## 🔄 Workflow
-
-1. **Create Prompt** → Upload a new prompt template with variables
-2. **Create Versions** → Iterate and create multiple versions of the same prompt
-3. **Create Golden Examples** → Define input/output pairs for evaluation
-4. **Run Experiments** → Execute experiments across prompt versions using golden examples
-5. **Analyze Results** → Review metrics including similarity scores and hallucination rates
-6. **Compare & Refine** → Use diff view to understand version changes and iterate
-
-## 🔮 Future Enhancements
-
-- [ ] Advanced visualization dashboard for experiment results
-- [ ] Multi-model comparison framework
-- [ ] Automatic hyperparameter optimization
-- [ ] Integration with additional LLM providers (OpenAI, Anthropic, etc.)
-- [ ] Batch processing for large-scale experiments
-- [ ] Export functionality for results and reports
-- [ ] Webhook integrations for CI/CD pipelines
-- [ ] Advanced RBAC (Role-Based Access Control)
-
-## 📝 Database Migrations
-
-View all available migrations:
-```bash
-alembic history
-```
-
-Create a new migration:
-```bash
-alembic revision --autogenerate -m "description of change"
-```
-
-Apply/revert migrations:
-```bash
-alembic upgrade head        # Apply all pending migrations
-alembic downgrade -1        # Revert last migration
-```
-- Add comprehensive monitoring and performance metrics
-- Implement task result storage and retrieval
-- Expand API features (batch processing, webhooks)
-- Add comprehensive test coverage
-- Set up production monitoring and alerting
+For issues and questions, please refer to the project documentation or create an issue in the repository.
