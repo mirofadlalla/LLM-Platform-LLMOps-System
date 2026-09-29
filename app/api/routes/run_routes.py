@@ -1,13 +1,6 @@
 # app/api/routes/run_routes.py
 """
 Run Routes — HTTP endpoint definitions only.
-
-Rules:
-- Define path, method, response_model.
-- Inject dependencies (db, api_key).
-- Call run_controller.
-- Return controller result.
-- NO business logic, NO db queries, NO Celery.
 """
 
 from fastapi import APIRouter, Depends
@@ -31,6 +24,7 @@ def run_prompt(
         db=db,
         api_key=api_key,
         prompt_version_id=payload.prompt_version_id,
+        provider=payload.provider,
         model=payload.model,
         payload=payload.dict(),
     )
@@ -43,12 +37,7 @@ def list_runs(
     db: Session = Depends(get_db),
     api_key=Depends(get_api_key),
 ):
-    return run_controller.list_runs(
-        db=db,
-        api_key=api_key,
-        skip=skip,
-        limit=limit,
-    )
+    return run_controller.list_runs(db=db, api_key=api_key, skip=skip, limit=limit)
 
 
 @router.get("/task-status/{task_id}")

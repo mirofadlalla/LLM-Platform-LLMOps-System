@@ -16,36 +16,40 @@ class Settings(BaseSettings):
     # ── Redis ─────────────────────────────────────────────────────────────────
     redis_host: str = "localhost"
     redis_port: int = 6379
-    redis_broker_db: int = 0       # Celery broker DB index
-    redis_backend_db: int = 1      # Celery result backend DB index
-    redis_connect_timeout: int = 2  # seconds for health-check ping
+    redis_broker_db: int = 0
+    redis_backend_db: int = 1
+    redis_connect_timeout: int = 2
 
     # ── Rate Limiting ─────────────────────────────────────────────────────────
-    rate_limit_requests: int = 60   # max requests per window
-    rate_limit_window: int = 60     # window size in seconds
+    rate_limit_requests: int = 60
+    rate_limit_window: int = 60
 
     # ── External API Keys ─────────────────────────────────────────────────────
     huggingface_api_key: str = ""
+    groq_api_key: str = ""          # ← NEW
     wandb_api_key: str = ""
     api_secret_key: str = ""
 
-    # ── LLM / Model Configuration ─────────────────────────────────────────────
-    llm_model_name: str = "Qwen/Qwen2.5-1.5B-Instruct"
+    # ── LLM Provider / Model Defaults ─────────────────────────────────────────
+    # These determine which provider+model is used when none is specified
+    # explicitly in a RunRequest or by the evaluator/experiment runner.
+    default_llm_provider: str = "groq"          # ← NEW
+    default_llm_model: str = "gpt-oss-20b"      # ← NEW (registry slug)
+
+    # ── LLM Generation Defaults ───────────────────────────────────────────────
     llm_max_new_tokens: int = 150
     llm_default_temperature: float = 0.2
-    llm_cost_per_token: float = 0.00001  # USD per token (rough estimate)
+    llm_cost_per_token: float = 0.00001
 
     # ── Celery Task Retry Policy ──────────────────────────────────────────────
     celery_task_max_retries: int = 3
-    celery_task_retry_countdown: int = 5  # seconds between retries
+    celery_task_retry_countdown: int = 5
 
     # ── Logging ───────────────────────────────────────────────────────────────
     log_file: str = "app.log"
-    log_level: str = "INFO"  # DEBUG | INFO | WARNING | ERROR | CRITICAL
+    log_level: str = "INFO"
 
     # ── CORS ──────────────────────────────────────────────────────────────────
-    # Comma-separated list of allowed origins. Use ["*"] for development.
-    # Example env var: CORS_ORIGINS=https://app.example.com,https://admin.example.com
     cors_origins: List[str] = ["*"]
 
     # ── Application ───────────────────────────────────────────────────────────
@@ -79,7 +83,6 @@ class Settings(BaseSettings):
     @computed_field  # type: ignore[misc]
     @property
     def redis_url(self) -> str:
-        """Plain Redis URL used by the rate-limiter (no DB index)."""
         return f"redis://{self.redis_host}:{self.redis_port}"
 
 

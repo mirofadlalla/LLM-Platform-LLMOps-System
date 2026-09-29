@@ -1,15 +1,14 @@
 from pydantic import BaseModel
 from typing import Dict, Any, Optional
 
-# Run Schemas
 
-# Run Request and Response Schemas
 class RunRequest(BaseModel):
     prompt_version_id: str
     variables: Dict[str, Any]
-    model: str
-    
-# Optional fields for future use (e.g., for tracking tokens, latency, etc.)
+    provider: str = "groq"          # registry provider key, e.g. "groq" | "huggingface"
+    model: str = "gpt-oss-20b"      # registry model slug,    e.g. "gpt-oss-20b" | "reasoning"
+
+
 class RunResponse(BaseModel):
     run_id: str
     task_id: Optional[str] = None

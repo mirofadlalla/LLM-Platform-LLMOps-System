@@ -21,22 +21,29 @@ logger = logging.getLogger(__name__)
     name="app.services.run_task.run_prompt_task",
 )
 def run_prompt_task(self, run_id: str, payload: dict):
-    """Celery task: render prompt, call LLM, persist results."""
-    # Lazy import — only load when the task actually executes on a worker
-    from app.services.llm_runner import call_llama
+    """
+    Celery task: render prompt → call LLM → persist results.
 
-    logger.info("run_prompt_task started")
+    payload keys:
+        prompt_version_id: str
+        variables:         dict
+        provider:          str   (registry provider key, e.g. "groq")
+        model:             str   (registry model slug,   e.g. "gpt-oss-20b")
+    """
+    # Lazy import — keeps module load fast; avoids circular deps at worker startup
+    from app.llm.runner import call_llm
+
+    logger.info(f"run_prompt_task started: run_id={run_id}")
+    logger.debug(f"Payload variables: {payload.get('variables')}")
+
     db = SessionLocal()
-
-    logger.info(f"Starting run_prompt_task for run_id={run_id}")
-    logger.info(f"Payload variables: {payload.get('variables')}")
-
     run = None
+
     try:
         run = db.query(Run).filter(Run.id == run_id).first()
         if not run:
-            logger.error(f"Run id={run_id} not found in database")
-            raise ValueError(f"Run with id {run_id} not found")
+            logger.error(f"Run id={run_id} not found")
+            raise ValueError(f"Run {run_id} not found")
 
         run.status = "running"
         db.commit()
@@ -52,10 +59,15 @@ def run_prompt_task(self, run_id: str, payload: dict):
             payload["variables"],
         )
 
+        # Resolve provider and model — fall back to application defaults
+        provider_id = payload.get("provider") or settings.default_llm_provider
+        model_slug  = payload.get("model")    or settings.default_llm_model
+
         start = time.perf_counter()
-        output, tokens_in, tokens_out = call_llama(
+        output, tokens_in, tokens_out = call_llm(
             prompt=rendered_prompt,
-            model_name=payload.get("model"),  # None → LLMService uses settings default
+            provider_id=provider_id,
+            model_slug=model_slug,
         )
         latency_ms = int((time.perf_counter() - start) * 1000)
 
@@ -66,12 +78,17 @@ def run_prompt_task(self, run_id: str, payload: dict):
         run.status = "completed"
 
         cost = (tokens_in + tokens_out) * settings.llm_cost_per_token
-
         db.add(CostLog(run_id=run.id, cost_usd=cost))
         db.commit()
 
+        logger.info(
+            f"run_prompt_task completed: run_id={run_id} "
+            f"provider={provider_id} model={model_slug} "
+            f"latency={latency_ms}ms cost=${cost:.6f}"
+        )
+
     except Exception as exc:
-        logger.error(f"Error in run_prompt_task: {exc}", exc_info=True)
+        logger.error(f"run_prompt_task failed: run_id={run_id} — {exc}", exc_info=True)
         if run is not None:
             run.status = "failed"
             db.commit()

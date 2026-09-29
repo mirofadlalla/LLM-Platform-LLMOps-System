@@ -1,17 +1,6 @@
 # app/api/controllers/run_controller.py
 """
 Run Controller — bridges HTTP/API layer and RunService.
-
-Responsibilities:
-- Receive validated request data.
-- Apply rate limiting (API-boundary concern).
-- Call run_service methods.
-- Translate domain exceptions into HTTPException.
-- Shape the response dict returned to the router.
-
-Rules:
-- NO SQLAlchemy queries.
-- NO direct Celery calls.
 """
 
 import logging
@@ -32,6 +21,7 @@ class RunController:
         db: Session,
         api_key,
         prompt_version_id: str,
+        provider: str,
         model: str,
         payload: dict,
     ) -> dict:
@@ -41,6 +31,7 @@ class RunController:
             run, task_id = run_service.create_run_and_enqueue(
                 db=db,
                 prompt_version_id=prompt_version_id,
+                provider=provider,
                 model=model,
                 payload=payload,
             )
@@ -56,13 +47,7 @@ class RunController:
             "status": "pending",
         }
 
-    def list_runs(
-        self,
-        db: Session,
-        api_key,
-        skip: int,
-        limit: int,
-    ):
+    def list_runs(self, db: Session, api_key, skip: int, limit: int):
         rate_limit(api_key)
         return run_service.list_runs(db=db, skip=skip, limit=limit)
 

@@ -14,6 +14,7 @@ from app.api.routes.prompt_routes import router as prompt_router
 from app.api.routes.run_routes import router as run_router
 from app.api.routes.evaluation_routes import router as evaluation_router
 from app.api.routes.experiment_routes import router as experiment_router
+from app.api.routes.models_routes import router as models_router   # ← NEW
 
 app = FastAPI(
     title=settings.app_title,
@@ -39,3 +40,4 @@ app.include_router(prompt_router, prefix="/api/v1")
 app.include_router(run_router, prefix="/api/v1")
 app.include_router(evaluation_router, prefix="/api/v1")
 app.include_router(experiment_router, prefix="/api/v1")
+app.include_router(models_router, prefix="/api/v1")   # ← NEW
