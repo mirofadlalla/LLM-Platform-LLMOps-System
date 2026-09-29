@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from app.core.config import settings
 from app.core.logging import setup_logging
 from app.core.middleware import request_id_middleware
 
@@ -15,15 +16,15 @@ from app.api.routes.evaluation_routes import router as evaluation_router
 from app.api.routes.experiment_routes import router as experiment_router
 
 app = FastAPI(
-    title="LLMOps Platform",
-    version="0.1.0"
+    title=settings.app_title,
+    version=settings.app_version,
 )
 
 app.middleware("http")(request_id_middleware)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

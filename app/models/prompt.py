@@ -20,8 +20,14 @@ class Prompt(Base):
         order_by="PromptVersion.created_at"
     )
 
-    golden_examples = relationship("GoldenExample", back_populates="prompt")
-    experiments = relationship("Experiment", back_populates="prompt")
+    golden_examples = relationship(
+        "GoldenExample",
+        back_populates="prompt"
+    )
+    experiments = relationship(
+        "Experiment",
+        back_populates="prompt"
+    )
 
 # PromptVersion
 class PromptVersion(Base):
@@ -33,7 +39,11 @@ class PromptVersion(Base):
     template = Column(String, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
     is_active = Column(Boolean, default=False)
-    prompt = relationship("Prompt", back_populates="versions")
+
+    prompt = relationship(
+        "Prompt",
+        back_populates="versions"
+        )
 
     runs = relationship(
         "Run",

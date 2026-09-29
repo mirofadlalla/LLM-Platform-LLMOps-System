@@ -35,7 +35,8 @@ class PromptRepository:
         return prompt
 
     def get_prompt_by_id(self, db: Session, prompt_id: str) -> Optional[Prompt]:
-        return db.query(Prompt).filter(Prompt.id == prompt_id).first()
+        return db.query(Prompt) \
+                 .filter(Prompt.id == prompt_id).first()
 
     def list_prompts(
         self,

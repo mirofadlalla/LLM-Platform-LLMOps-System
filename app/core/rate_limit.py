@@ -1,39 +1,53 @@
+# app/core/rate_limit.py
 import time
-from fastapi import HTTPException, status
+
 import redis
+from fastapi import HTTPException, status
+
+from app.core.config import settings
 
 try:
-    redis_client = redis.Redis(host="localhost", port=6379, decode_responses=True, socket_connect_timeout=2)
+    redis_client = redis.Redis(
+        host=settings.redis_host,
+        port=settings.redis_port,
+        decode_responses=True,
+        socket_connect_timeout=settings.redis_connect_timeout,
+    )
     redis_client.ping()
 except (redis.ConnectionError, redis.TimeoutError):
     redis_client = None
 
-RATE_LIMIT = 60   # requests
-WINDOW = 60       # seconds
 
-def rate_limit(api_key: str):
-    # Skip rate limiting if Redis is not available
+def rate_limit(api_key) -> None:
+    """
+    Sliding-window rate limiter backed by Redis.
+
+    Gracefully no-ops when Redis is unavailable.
+    Limits are controlled by settings.rate_limit_requests and
+    settings.rate_limit_window.
+    """
     if redis_client is None:
         return
-    
+
+    # Use the raw key string so the Redis key is stable regardless of
+    # whether api_key is an APIKey ORM object or a plain string.
+    key_str = api_key.key if hasattr(api_key, "key") else str(api_key)
+
     try:
         now = int(time.time())
-        key = f"rate:{api_key}:{now // WINDOW}" # key per window this means every minute new key for each api key the same api key will have different keys every minute
+        window_key = f"rate:{key_str}:{now // settings.rate_limit_window}"
 
-        # Increment the count for this key
-        current = redis_client.incr(key)
+        current = redis_client.incr(window_key)
 
-        
-        # Set expiration time for the key if it's newly created
         if current == 1:
-            redis_client.expire(key, WINDOW)
+            redis_client.expire(window_key, settings.rate_limit_window)
 
-        # Check if the current count exceeds the rate limit
-        if current > RATE_LIMIT:
+        if current > settings.rate_limit_requests:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-                detail="Rate limit exceeded"
+                detail="Rate limit exceeded",
             )
+
     except (redis.ConnectionError, redis.TimeoutError):
-        # Gracefully skip rate limiting if Redis connection fails
+        # Gracefully skip rate limiting if Redis connection fails mid-request
         pass

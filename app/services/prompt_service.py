@@ -14,7 +14,7 @@ from typing import List, Tuple
 
 from sqlalchemy.orm import Session
 
-from app.core.exceptions import PromptNotFoundError, PromptVersionNotFoundError
+from app.core.exceptions import PromptVersionNotFoundError
 from app.models.prompt import Prompt, PromptVersion
 from app.repositories.prompt_repository import prompt_repository
 from app.services.prompt_diff import diff_templates

@@ -14,29 +14,38 @@ FileHandlers or Formatters.
 
 import logging
 import sys
-from pathlib import Path
+
+from app.core.config import settings
 
 
 def setup_logging(
-    log_level: int = logging.INFO,
-    log_file: str = "app.log",
+    log_level: int | None = None,
+    log_file: str | None = None,
 ) -> None:
-    """Configure root logger with a console handler and a file handler."""
+    """
+    Configure root logger with a console handler and a file handler.
+
+    Parameters fall back to settings.log_level and settings.log_file when
+    not explicitly provided, making them overridable via the .env file or
+    environment variables (LOG_LEVEL, LOG_FILE).
+    """
+    effective_level = log_level if log_level is not None else getattr(
+        logging, settings.log_level.upper(), logging.INFO
+    )
+    effective_file = log_file if log_file is not None else settings.log_file
 
     formatter = logging.Formatter(
         "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
     )
 
-    # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setFormatter(formatter)
 
-    # File handler
-    file_handler = logging.FileHandler(log_file, encoding="utf-8")
+    file_handler = logging.FileHandler(effective_file, encoding="utf-8")
     file_handler.setFormatter(formatter)
 
     root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
+    root_logger.setLevel(effective_level)
 
     # Avoid duplicate handlers on hot-reload
     if not root_logger.handlers:

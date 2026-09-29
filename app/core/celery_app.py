@@ -1,12 +1,15 @@
+# app/core/celery_app.py
 from celery import Celery
+
+from app.core.config import settings
 
 CeleryApp = Celery(
     "llmops",
-    broker="redis://localhost:6379/0",
-    backend="redis://localhost:6379/1"
+    broker=settings.redis_broker_url,
+    backend=settings.redis_backend_url,
 )
 
-# Export with lowercase name for imports - Must be defined before imports to avoid circular dependency
+# Export with lowercase name for imports
 celery_app = CeleryApp
 
 # Configure Celery
@@ -28,4 +31,3 @@ CeleryApp.autodiscover_tasks(["app.services"])
 
 # Explicitly import tasks to ensure registration
 from app.services import run_task  # noqa: F401
-
