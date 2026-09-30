@@ -71,6 +71,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: false
+          load: true
           tags: backend-test:latest
           cache-from: type=gha
 
