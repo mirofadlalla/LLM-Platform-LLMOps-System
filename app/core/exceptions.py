@@ -29,3 +29,11 @@ class RunNotFoundError(Exception):
 
 class TaskQueueError(Exception):
     """Raised when enqueueing a Celery task fails."""
+
+
+class ABTestNotFoundError(Exception):
+    """Raised when an A/B test session cannot be found by ID."""
+
+
+class ABTestAlreadyVotedError(Exception):
+    """Raised when a user tries to vote on an already-voted A/B test."""
