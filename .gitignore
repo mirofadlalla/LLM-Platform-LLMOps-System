@@ -1,8 +1,14 @@
 .env
 .env.*
 !/.env.example
+
+# Python bytecode – never commit compiled files
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
+alembic/versions/__pycache__/
+
 create_test_api_key.py
 database_design.py
 .pytest_cache
