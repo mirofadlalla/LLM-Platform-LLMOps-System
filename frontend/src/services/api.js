@@ -17,7 +17,11 @@
 import axios from 'axios';
 
 // ── Base URL (from .env, never hardcoded) ─────────────────────────────────────
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
+// In production: VITE_API_URL=/api/v1  →  requests go to Vercel's edge which
+// proxies server-side to http://63.187.109.126:8000 (see vercel.json).
+// In local dev:  Vite's proxy (vite.config.js) forwards /api/* → localhost:8000.
+// Fallback is also relative so a missing env var never causes Mixed Content.
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
