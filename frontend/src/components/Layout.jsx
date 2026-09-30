@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Play, Beaker, Database, Settings, ChevronLeft,
-  ChevronRight, Bell, Zap, Menu, BarChart3
+  ChevronRight, Bell, Zap, Menu, BarChart3, Sun, Moon
 } from 'lucide-react';
 import { healthService } from '../services/api';
+import { useTheme } from './ThemeContext';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -17,6 +18,7 @@ const navigation = [
 
 const Layout = ({ children }) => {
   const location = useLocation();
+  const { theme, setPreference } = useTheme();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [apiHealthy, setApiHealthy] = useState(null);
@@ -46,7 +48,7 @@ const Layout = ({ children }) => {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/60 z-40 md:hidden"
+          className="scrim fixed inset-0 z-40 md:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -65,7 +67,7 @@ const Layout = ({ children }) => {
         {/* Logo */}
         <div className={`flex items-center h-16 px-4 border-b border-white/5 ${compact ? 'justify-center' : 'gap-3'}`}>
           <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary-500/20">
-            <Zap className="h-5 w-5 text-white" />
+            <Zap className="h-5 w-5 text-on-accent" />
           </div>
           {!compact && (
             <div className="animate-fade-in">
@@ -150,6 +152,16 @@ const Layout = ({ children }) => {
                   {apiHealthy === null ? 'Checking...' : apiHealthy ? 'API Online' : 'API Offline'}
                 </span>
               </div>
+
+              {/* Theme toggle */}
+              <button
+                onClick={() => setPreference(theme === 'dark' ? 'light' : 'dark')}
+                className="icon-btn"
+                aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+                title={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              >
+                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
 
               {/* Notifications */}
               <button

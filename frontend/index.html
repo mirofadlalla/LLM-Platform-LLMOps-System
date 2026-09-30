@@ -4,11 +4,27 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="dark light" />
     <meta
       name="description"
       content="LLMOps Platform - AI Prompt Management, Monitoring & Experimentation Dashboard"
     />
     <title>LLMOps Platform | AI Prompt Management</title>
+    <script>
+      // Apply the saved theme before first paint (prevents a dark/light flash)
+      (function () {
+        try {
+          var p = localStorage.getItem('llmops_theme') || 'dark';
+          var t = p === 'system'
+            ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+            : p;
+          document.documentElement.setAttribute('data-theme', t);
+          document.documentElement.classList.toggle('dark', t === 'dark');
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

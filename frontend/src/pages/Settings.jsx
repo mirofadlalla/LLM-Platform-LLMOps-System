@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { getApiKey, setApiKey } from '../services/api';
-import { Key, Palette, Bell, Save, CheckCircle, Shield } from 'lucide-react';
+import { Key, Palette, Bell, Save, CheckCircle, Shield, Sun, Moon, Monitor } from 'lucide-react';
+import { useTheme } from '../components/ThemeContext';
 
 const Settings = () => {
   const [apiKey, setApiKeyInput] = useState('');
   const [saved, setSaved] = useState(false);
+  const { preference, theme, setPreference } = useTheme();
 
   useEffect(() => {
     setApiKeyInput(getApiKey());
@@ -66,9 +68,22 @@ const Settings = () => {
             <p className="text-xs text-slate-500">Dashboard theme configuration</p>
           </div>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="badge badge-active">Dark Mode</span>
-          <span className="text-xs text-slate-500">Active</span>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="chip-group" role="group" aria-label="Theme">
+            {[['light', 'Light', Sun], ['dark', 'Dark', Moon], ['system', 'System', Monitor]].map(([value, label, Icon]) => (
+              <button
+                key={value}
+                onClick={() => setPreference(value)}
+                aria-pressed={preference === value}
+                className="filter-chip gap-1.5"
+              >
+                <Icon className="h-3.5 w-3.5" /> {label}
+              </button>
+            ))}
+          </div>
+          {preference === 'system' && (
+            <span className="text-xs text-slate-500">Following your device ({theme})</span>
+          )}
         </div>
       </div>
 
@@ -127,7 +142,7 @@ const SettingToggle = ({ label, defaultOn }) => {
         }`}
       >
         <span
-          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${
+          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-on-accent shadow transition-transform ${
             on ? 'translate-x-5' : 'translate-x-0'
           }`}
         />

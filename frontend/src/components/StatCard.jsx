@@ -12,7 +12,7 @@ const StatCard = ({ title, value, icon: Icon, color, trend, trendColor, delay })
         )}
       </div>
       <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center flex-shrink-0 shadow-lg`}>
-        <Icon className="h-5 w-5 text-white" />
+        <Icon className="h-5 w-5 text-on-accent" />
       </div>
     </div>
   </div>

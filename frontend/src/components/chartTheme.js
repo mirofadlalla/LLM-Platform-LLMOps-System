@@ -1,17 +1,17 @@
 // Shared Recharts styling so every chart in the app looks the same.
-// Values mirror the global `.recharts-*` overrides in index.css.
+// Colours come from CSS variables (see index.css) so charts follow the light/dark theme.
 
 export const chartTooltipStyle = {
-  background: 'rgba(15,23,42,0.95)',
-  border: '1px solid rgba(139,92,246,0.2)',
+  background: 'var(--chart-tooltip-bg)',
+  border: '1px solid var(--chart-tooltip-border)',
   borderRadius: '10px',
-  color: '#e2e8f0',
+  color: 'var(--text-body)',
 };
 
-export const chartAxisTick = { fill: '#94a3b8', fontSize: 12 };
-export const chartGridStroke = 'rgba(51,65,85,0.3)';
+export const chartAxisTick = { fill: 'var(--chart-axis)', fontSize: 12 };
+export const chartGridStroke = 'var(--chart-grid)';
 
-// Series colours (violet, cyan, amber, red, green, pink)
+// Series colours (violet, cyan, amber, red, green, pink) - readable on both themes
 export const CHART_COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#ec4899'];
 
 // Run-status colours - match the StatusBadge palette
