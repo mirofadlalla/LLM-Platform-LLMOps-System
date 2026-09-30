@@ -37,3 +37,21 @@ class ABTestNotFoundError(Exception):
 
 class ABTestAlreadyVotedError(Exception):
     """Raised when a user tries to vote on an already-voted A/B test."""
+
+
+# ── Auth exceptions ───────────────────────────────────────────────────────────
+
+class InvalidCredentialsError(Exception):
+    """Raised when username/password authentication fails."""
+
+
+class DuplicateUsernameError(Exception):
+    """Raised when a registration uses an already-taken username."""
+
+
+class DuplicateEmailError(Exception):
+    """Raised when a registration uses an already-registered email."""
+
+
+class APIKeyNotFoundError(Exception):
+    """Raised when an API key cannot be found (or doesn't belong to the user)."""

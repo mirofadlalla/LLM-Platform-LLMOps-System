@@ -4,9 +4,6 @@ A comprehensive platform for managing, testing, and optimizing language model pr
 
 ---
 
-# Demo Videos & Screenshots:
-https://drive.google.com/drive/folders/1Fu2sJhq_QINnKiVNptr74Zx7JVng3x_-?usp=drive_link
-
 ## 🚀 Key Features
 
 ### Real LLM Pain Points Addressed 🎯

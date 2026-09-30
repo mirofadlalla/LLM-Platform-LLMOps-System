@@ -15,7 +15,8 @@ from app.api.routes.run_routes import router as run_router
 from app.api.routes.evaluation_routes import router as evaluation_router
 from app.api.routes.experiment_routes import router as experiment_router
 from app.api.routes.models_routes import router as models_router
-from app.api.routes.ab_test_routes import router as ab_test_router   # ← NEW
+from app.api.routes.ab_test_routes import router as ab_test_router
+from app.api.routes.auth_routes import router as auth_router            # ← NEW
 
 app = FastAPI(
     title=settings.app_title,
@@ -35,6 +36,7 @@ app.add_middleware(
 # ── Health & Auth ────────────────────────────────────────────────────────────
 app.include_router(health_router, prefix="/api/v1", tags=["health"])
 app.include_router(protected_router, prefix="/api/v1", tags=["protected"])
+app.include_router(auth_router, prefix="/api/v1")                   # ← NEW
 
 # ── Domain Routers ───────────────────────────────────────────────────────────
 app.include_router(prompt_router, prefix="/api/v1")
@@ -42,4 +44,4 @@ app.include_router(run_router, prefix="/api/v1")
 app.include_router(evaluation_router, prefix="/api/v1")
 app.include_router(experiment_router, prefix="/api/v1")
 app.include_router(models_router, prefix="/api/v1")
-app.include_router(ab_test_router, prefix="/api/v1")   # ← NEW
+app.include_router(ab_test_router, prefix="/api/v1")

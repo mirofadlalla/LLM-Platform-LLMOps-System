@@ -26,9 +26,14 @@ class Settings(BaseSettings):
 
     # ── External API Keys ─────────────────────────────────────────────────────
     huggingface_api_key: str = ""
-    groq_api_key: str = ""          # ← NEW
+    groq_api_key: str = ""
     wandb_api_key: str = ""
     api_secret_key: str = ""
+
+    # ── JWT Authentication ─────────────────────────────────────────────────────
+    jwt_secret_key: str = "change-me-in-production-use-a-long-random-string"
+    jwt_algorithm: str = "HS256"
+    jwt_access_token_expire_minutes: int = 60 * 24  # 24 hours
 
     # ── LLM Provider / Model Defaults ─────────────────────────────────────────
     # These determine which provider+model is used when none is specified

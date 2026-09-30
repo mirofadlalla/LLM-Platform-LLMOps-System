@@ -8,24 +8,26 @@ from sqlalchemy.orm import relationship
 class User(Base):
     __tablename__ = "users"
     id = uuid_pk()
-    email = Column(String , unique=True , nullable=False)
-    created_at = Column(DateTime , default=datetime.utcnow)
+    username = Column(String, unique=True, nullable=False, index=True)
+    email    = Column(String, unique=True, nullable=False)
+    password_hash = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-    # دي علاثه بين البايثون اوبكجتس وبعضها مش زي اني اعمل علاقه تفها قاعده البيانات بس 
     api_keys = relationship(
         "APIKey",
         back_populates="user",
         cascade="all, delete-orphan"
     ) 
 
-# APIKey 
+# APIKey
 class APIKey(Base):
     __tablename__ = "api_keys"
 
     id = uuid_pk()
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"))
     key = Column(String, unique=True, nullable=False)
-    is_active = Column(Boolean, default=True) # can'd use bool pytthon 
+    name = Column(String, nullable=True)          # optional human label e.g. "production"
+    is_active = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="api_keys")
