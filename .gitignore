@@ -1,6 +1,7 @@
 .env
 .env.*
 !/.env.example
+!/frontend/.env.example
 
 # Python bytecode – never commit compiled files
 __pycache__/

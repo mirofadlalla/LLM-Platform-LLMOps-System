@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Environment files — never commit real values; use Vercel env vars in production
+.env
+.env.local
+.env.*.local
+# .env.example is committed intentionally (it's a template with no secrets)
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
