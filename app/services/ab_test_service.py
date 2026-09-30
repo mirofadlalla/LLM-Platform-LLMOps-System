@@ -20,6 +20,7 @@ Rules (same as every other service in this codebase):
 
 import json
 import logging
+from concurrent.futures import ThreadPoolExecutor
 
 from sqlalchemy.orm import Session
 
@@ -65,28 +66,35 @@ class ABTestService:
                 f"Prompt version B not found: {version_b_id}"
             )
 
-        # 2. Render both templates
+        # 2. Render both templates (pure string ops — keep sequential)
         rendered_a = render_prompt(version_a.template, variables)
         rendered_b = render_prompt(version_b.template, variables)
 
-        # 3. Call the LLM for version A
+        # 3. Call both LLMs in parallel — total latency ≈ max(A, B) not A + B
         logger.info(
-            f"ABTest: calling LLM for version_a={version_a_id!r} "
+            f"ABTest: firing parallel LLM calls "
+            f"version_a={version_a_id!r} version_b={version_b_id!r} "
             f"provider={provider!r} model={model!r}"
         )
-        answer_a, _, _ = call_llm(
-            prompt=rendered_a,
-            provider_id=provider,
-            model_slug=model,
-        )
 
-        # 4. Call the LLM for version B
-        logger.info(f"ABTest: calling LLM for version_b={version_b_id!r}")
-        answer_b, _, _ = call_llm(
-            prompt=rendered_b,
-            provider_id=provider,
-            model_slug=model,
-        )
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            future_a = pool.submit(
+                call_llm,
+                rendered_a,
+                provider,   # provider_id
+                model,      # model_slug
+            )
+            future_b = pool.submit(
+                call_llm,
+                rendered_b,
+                provider,
+                model,
+            )
+            # .result() re-raises any exception from the worker thread
+            answer_a, _, _ = future_a.result()
+            answer_b, _, _ = future_b.result()
+
+        logger.info("ABTest: both LLM calls completed")
 
         # 5. Store the query as JSON so it can be replayed
         query_str = json.dumps(variables, ensure_ascii=False)
