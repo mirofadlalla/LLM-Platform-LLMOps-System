@@ -2,13 +2,15 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { runApiService, promptService, experimentService } from '../services/api';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  LineChart, Line, PieChart, Pie, Cell, AreaChart, Area, RadarChart, Radar,
-  PolarGrid, PolarAngleAxis, PolarRadiusAxis
+  PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
 import {
-  TrendingUp, Activity, BarChart3, RefreshCw, Clock, Zap, Layers
+  TrendingUp, Activity, RefreshCw, Clock, Zap, Layers
 } from 'lucide-react';
 import { format } from 'date-fns';
+import StatCard from '../components/StatCard';
+import ChartCard, { ChartEmpty } from '../components/ChartCard';
+import { chartTooltipStyle, chartAxisTick, chartGridStroke, CHART_COLORS } from '../components/chartTheme';
 
 const Analytics = () => {
   const [runs, setRuns] = useState([]);
@@ -86,20 +88,17 @@ const Analytics = () => {
     if (r.latency_ms) { modelStats[m].totalLatency += r.latency_ms; modelStats[m].count++; }
   });
 
-  const CHART_COLORS = ['#8b5cf6', '#06b6d4', '#f59e0b', '#ef4444', '#10b981', '#ec4899'];
-
-  const tooltipStyle = {
-    background: 'rgba(15,23,42,0.95)',
-    border: '1px solid rgba(139,92,246,0.2)',
-    borderRadius: '10px',
-    color: '#e2e8f0',
-  };
+  const totalRuns = runs.length;
+  const avgLatency = totalRuns > 0 ? Math.round(runs.reduce((a, r) => a + (r.latency_ms || 0), 0) / totalRuns) : 0;
+  const successRate = totalRuns > 0
+    ? ((runs.filter(r => r.status === 'success' || r.status === 'completed').length / totalRuns) * 100).toFixed(1)
+    : 0;
 
   if (loading) {
     return (
       <div className="space-y-6 animate-fade-in">
-        <div className="h-8 w-48 skeleton" />
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="h-14 w-56 skeleton" />
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
           {[...Array(4)].map((_, i) => <div key={i} className="h-80 skeleton rounded-2xl" />)}
         </div>
       </div>
@@ -109,156 +108,112 @@ const Analytics = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center animate-fade-in">
+      <div className="page-header animate-fade-in">
         <div>
-          <h2 className="text-2xl font-bold text-white">Analytics</h2>
-          <p className="text-sm text-slate-400 mt-1">Performance insights & trends</p>
+          <h1 className="page-title">Analytics</h1>
+          <p className="page-subtitle">Performance insights & trends</p>
         </div>
-        <button onClick={fetchData} className="btn-secondary flex items-center gap-2">
+        <button onClick={fetchData} className="btn-secondary">
           <RefreshCw className="h-4 w-4" /> Refresh
         </button>
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-        <MiniStat label="Total Runs" value={runs.length} icon={TrendingUp} />
-        <MiniStat
-          label="Avg Latency"
-          value={`${runs.length > 0 ? Math.round(runs.reduce((a, r) => a + (r.latency_ms || 0), 0) / runs.length) : 0}ms`}
-          icon={Clock}
-        />
-        <MiniStat label="Models Used" value={Object.keys(modelUsage).length} icon={Layers} />
-        <MiniStat
-          label="Success Rate"
-          value={`${runs.length > 0 ? ((runs.filter(r => r.status === 'success' || r.status === 'completed').length / runs.length) * 100).toFixed(1) : 0}%`}
-          icon={Activity}
-        />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 animate-fade-in" style={{ animationDelay: '0.05s' }}>
+        <StatCard title="Total Runs" value={totalRuns} icon={TrendingUp} color="from-blue-500 to-cyan-400" />
+        <StatCard title="Avg Latency" value={`${avgLatency}ms`} icon={Clock} color="from-amber-500 to-yellow-400" />
+        <StatCard title="Models Used" value={Object.keys(modelUsage).length} icon={Layers} color="from-indigo-500 to-blue-400" />
+        <StatCard title="Success Rate" value={`${successRate}%`} icon={Activity} color="from-emerald-500 to-green-400" />
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Success Rate Over Time */}
-        <div className="glass-card rounded-2xl p-6 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-sm font-semibold text-white">Success Rate Over Time</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Hourly success percentage</p>
-            </div>
-            <Activity className="h-5 w-5 text-emerald-400" />
-          </div>
-          <div className="h-64">
-            {timeSeriesData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={timeSeriesData}>
-                  <defs>
-                    <linearGradient id="successGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
-                      <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(51,65,85,0.3)" />
-                  <XAxis dataKey="time" tick={{ fill: '#64748b', fontSize: 10 }} angle={-30} textAnchor="end" height={50} />
-                  <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                  <Area type="monotone" dataKey="successRate" stroke="#10b981" strokeWidth={2} fill="url(#successGrad)" name="Success %" />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <EmptyChart />
-            )}
-          </div>
-        </div>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <ChartCard title="Success Rate Over Time" subtitle="Hourly success percentage" icon={Activity} iconClass="text-emerald-400" delay="0.1s">
+          {timeSeriesData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={timeSeriesData}>
+                <defs>
+                  <linearGradient id="successGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#10b981" stopOpacity={0.3} />
+                    <stop offset="100%" stopColor="#10b981" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={chartGridStroke} />
+                <XAxis dataKey="time" tick={chartAxisTick} angle={-30} textAnchor="end" height={64} />
+                <YAxis domain={[0, 100]} tick={chartAxisTick} />
+                <Tooltip contentStyle={chartTooltipStyle} />
+                <Area type="monotone" dataKey="successRate" stroke="#10b981" strokeWidth={2} fill="url(#successGrad)" name="Success %" />
+              </AreaChart>
+            </ResponsiveContainer>
+          ) : (
+            <ChartEmpty />
+          )}
+        </ChartCard>
 
-        {/* Model Usage */}
-        <div className="glass-card rounded-2xl p-6 animate-fade-in" style={{ animationDelay: '0.15s' }}>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-sm font-semibold text-white">Model Usage</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Distribution of model calls</p>
-            </div>
-            <Layers className="h-5 w-5 text-primary-400" />
-          </div>
-          <div className="h-64">
-            {modelPieData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={modelPieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={80}
-                    paddingAngle={4}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {modelPieData.map((_, i) => (
-                      <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} stroke="transparent" />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={tooltipStyle} />
-                </PieChart>
-              </ResponsiveContainer>
-            ) : (
-              <EmptyChart />
-            )}
-          </div>
-        </div>
+        <ChartCard title="Model Usage" subtitle="Distribution of model calls" icon={Layers} iconClass="text-primary-400" delay="0.15s">
+          {modelPieData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={modelPieData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={50}
+                  outerRadius={80}
+                  paddingAngle={4}
+                  dataKey="value"
+                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                >
+                  {modelPieData.map((_, i) => (
+                    <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} stroke="transparent" />
+                  ))}
+                </Pie>
+                <Tooltip contentStyle={chartTooltipStyle} />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <ChartEmpty />
+          )}
+        </ChartCard>
 
-        {/* Latency Distribution */}
-        <div className="glass-card rounded-2xl p-6 animate-fade-in" style={{ animationDelay: '0.2s' }}>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-sm font-semibold text-white">Latency Distribution</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Response time buckets (ms)</p>
-            </div>
-            <Clock className="h-5 w-5 text-amber-400" />
-          </div>
-          <div className="h-64">
+        <ChartCard title="Latency Distribution" subtitle="Response time buckets (ms)" icon={Clock} iconClass="text-amber-400" delay="0.2s">
+          {runs.length > 0 ? (
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={latencyHistData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(51,65,85,0.3)" />
-                <XAxis dataKey="range" tick={{ fill: '#64748b', fontSize: 11 }} />
-                <YAxis tick={{ fill: '#64748b', fontSize: 11 }} />
-                <Tooltip contentStyle={tooltipStyle} />
+                <CartesianGrid strokeDasharray="3 3" stroke={chartGridStroke} />
+                <XAxis dataKey="range" tick={chartAxisTick} />
+                <YAxis tick={chartAxisTick} />
+                <Tooltip contentStyle={chartTooltipStyle} />
                 <Bar dataKey="count" fill="#f59e0b" radius={[6, 6, 0, 0]} name="Runs" />
               </BarChart>
             </ResponsiveContainer>
-          </div>
-        </div>
+          ) : (
+            <ChartEmpty />
+          )}
+        </ChartCard>
 
-        {/* Throughput Over Time */}
-        <div className="glass-card rounded-2xl p-6 animate-fade-in" style={{ animationDelay: '0.25s' }}>
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h3 className="text-sm font-semibold text-white">Throughput</h3>
-              <p className="text-xs text-slate-500 mt-0.5">Runs per hour</p>
-            </div>
-            <Zap className="h-5 w-5 text-cyan-400" />
-          </div>
-          <div className="h-64">
-            {timeSeriesData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={timeSeriesData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(51,65,85,0.3)" />
-                  <XAxis dataKey="time" tick={{ fill: '#64748b', fontSize: 10 }} angle={-30} textAnchor="end" height={50} />
-                  <YAxis tick={{ fill: '#64748b', fontSize: 11 }} />
-                  <Tooltip contentStyle={tooltipStyle} />
-                  <Bar dataKey="runs" fill="#06b6d4" radius={[6, 6, 0, 0]} name="Runs" />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <EmptyChart />
-            )}
-          </div>
-        </div>
+        <ChartCard title="Throughput" subtitle="Runs per hour" icon={Zap} iconClass="text-cyan-400" delay="0.25s">
+          {timeSeriesData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={timeSeriesData}>
+                <CartesianGrid strokeDasharray="3 3" stroke={chartGridStroke} />
+                <XAxis dataKey="time" tick={chartAxisTick} angle={-30} textAnchor="end" height={64} />
+                <YAxis tick={chartAxisTick} />
+                <Tooltip contentStyle={chartTooltipStyle} />
+                <Bar dataKey="runs" fill="#06b6d4" radius={[6, 6, 0, 0]} name="Runs" />
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <ChartEmpty />
+          )}
+        </ChartCard>
       </div>
 
       {/* Model Performance Table */}
       {Object.keys(modelStats).length > 0 && (
         <div className="glass-card rounded-2xl overflow-hidden animate-fade-in" style={{ animationDelay: '0.3s' }}>
-          <div className="px-6 py-4 border-b border-white/5">
-            <h3 className="text-sm font-semibold text-white">Model Performance Comparison</h3>
+          <div className="card-header">
+            <h3 className="card-title">Model Performance Comparison</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="table-dark">
@@ -298,23 +253,5 @@ const Analytics = () => {
     </div>
   );
 };
-
-const MiniStat = ({ label, value, icon: Icon }) => (
-  <div className="glass-card rounded-xl p-4">
-    <div className="flex items-center gap-3">
-      <Icon className="h-5 w-5 text-primary-400" />
-      <div>
-        <p className="text-[11px] text-slate-500 uppercase font-semibold">{label}</p>
-        <p className="text-lg font-bold text-white">{value}</p>
-      </div>
-    </div>
-  </div>
-);
-
-const EmptyChart = () => (
-  <div className="h-full flex items-center justify-center text-slate-500 text-sm">
-    No data available yet
-  </div>
-);
 
 export default Analytics;

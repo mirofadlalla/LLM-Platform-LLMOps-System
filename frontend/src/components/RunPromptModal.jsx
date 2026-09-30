@@ -83,18 +83,18 @@ const RunPromptModal = ({ isOpen, onClose, prompt, version }) => {
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Run: ${prompt?.name} (${version?.version})`} size="lg">
-      <div className="space-y-4">
+      <div className="space-y-5">
         {/* Template Preview */}
         {version?.template && (
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Template</label>
+            <label className="field-label">Template</label>
             <pre className="code-block text-xs max-h-24 overflow-auto">{version.template}</pre>
           </div>
         )}
 
         {/* Model Selection */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1.5">Model</label>
+          <label className="field-label">Model</label>
           <select value={model} onChange={(e) => setModel(e.target.value)} className="input-dark w-full">
             <option value="gpt-4o">gpt-4o</option>
             <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
@@ -104,34 +104,34 @@ const RunPromptModal = ({ isOpen, onClose, prompt, version }) => {
 
         {/* Variables */}
         <div>
-          <label className="block text-sm font-medium text-slate-300 mb-1.5">Variables (JSON)</label>
+          <label className="field-label">Variables (JSON)</label>
           <textarea
             value={variables}
             onChange={(e) => setVariables(e.target.value)}
-            className="input-dark w-full font-mono text-sm"
+            className="input-dark w-full font-mono"
             rows={5}
           />
         </div>
 
         {/* Error */}
         {error && (
-          <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-300 flex items-center gap-2">
-            <XCircle className="h-4 w-4 flex-shrink-0" /> {error}
+          <div className="alert alert-error" role="alert">
+            <XCircle /> {error}
           </div>
         )}
 
         {/* Status indicator */}
         {(status === 'pending' || status === 'processing') && (
-          <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl text-sm text-blue-300 flex items-center gap-2">
-            <Loader className="h-4 w-4 animate-spin flex-shrink-0" />
+          <div className="alert alert-info" role="status">
+            <Loader className="animate-spin" />
             {status === 'pending' ? 'Queued, waiting for processing...' : 'Processing...'}
           </div>
         )}
 
         {/* Success */}
         {status === 'success' && result && (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-xl">
-            <div className="flex items-center gap-2 text-sm font-semibold text-emerald-300 mb-2">
+          <div className="alert-success border rounded-xl p-4">
+            <div className="flex items-center gap-2 text-sm font-semibold mb-2">
               <CheckCircle className="h-4 w-4" /> Success
             </div>
             <pre className="code-block text-xs max-h-40 overflow-auto">
@@ -141,12 +141,12 @@ const RunPromptModal = ({ isOpen, onClose, prompt, version }) => {
         )}
 
         {/* Actions */}
-        <div className="flex justify-end gap-3 pt-2">
+        <div className="modal-actions">
           <button onClick={onClose} className="btn-secondary">Close</button>
           <button
             onClick={handleRun}
             disabled={status === 'pending' || status === 'processing'}
-            className="btn-primary flex items-center gap-2"
+            className="btn-primary"
           >
             {status === 'pending' || status === 'processing' ? (
               <><Loader className="h-4 w-4 animate-spin" /> Running...</>

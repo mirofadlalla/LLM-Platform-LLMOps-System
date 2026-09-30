@@ -2,11 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { runApiService, promptService } from '../services/api';
 import { format, formatDistanceToNow } from 'date-fns';
 import {
-  Play, RefreshCw, Search, Filter, Eye, RotateCcw,
-  ChevronDown, Clock, Zap, AlertCircle, CheckCircle, XCircle, Loader
+  Play, RefreshCw, Search, Eye, CheckCircle, XCircle, Loader
 } from 'lucide-react';
 import Modal from '../components/Modal';
-import { StatusBadge } from './Dashboard';
+import StatusBadge from '../components/StatusBadge';
 
 const RunPlayground = () => {
   const [runs, setRuns] = useState([]);
@@ -159,56 +158,53 @@ const RunPlayground = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 animate-fade-in">
+      <div className="page-header animate-fade-in">
         <div>
-          <h2 className="text-2xl font-bold text-white">Runs</h2>
-          <p className="text-sm text-slate-400 mt-1">
+          <h1 className="page-title">Runs</h1>
+          <p className="page-subtitle">
             {runs.length} total runs
-            {autoRefresh && <span className="text-primary-400 ml-2">• Auto-refreshing</span>}
+            {autoRefresh && <span className="text-primary-300 ml-2">• Auto-refreshing</span>}
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="page-actions">
           <button
             onClick={() => setAutoRefresh(!autoRefresh)}
-            className={`btn-ghost text-xs flex items-center gap-1.5 ${autoRefresh ? 'text-primary-400' : 'text-slate-500'}`}
+            aria-pressed={autoRefresh}
+            className={`btn-secondary ${autoRefresh ? 'text-primary-300' : 'text-slate-400'}`}
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${autoRefresh ? 'animate-spin' : ''}`} style={autoRefresh ? { animationDuration: '3s' } : {}} />
+            <RefreshCw className={`h-4 w-4 ${autoRefresh ? 'animate-spin' : ''}`} style={autoRefresh ? { animationDuration: '3s' } : {}} />
             {autoRefresh ? 'Live' : 'Paused'}
           </button>
-          <button onClick={() => setShowCreateModal(true)} className="btn-primary flex items-center gap-2">
+          <button onClick={() => setShowCreateModal(true)} className="btn-primary">
             <Play className="h-4 w-4" /> New Run
           </button>
         </div>
       </div>
 
-      {/* Status Tabs */}
-      <div className="flex flex-wrap gap-2 animate-fade-in" style={{ animationDelay: '0.05s' }}>
-        {Object.entries(statusCounts).map(([status, count]) => (
-          <button
-            key={status}
-            onClick={() => setStatusFilter(status)}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-              statusFilter === status
-                ? 'bg-primary-500/15 text-primary-300 border border-primary-500/20'
-                : 'bg-white/5 text-slate-400 border border-transparent hover:bg-white/10'
-            }`}
-          >
-            {status.charAt(0).toUpperCase() + status.slice(1)} ({count})
-          </button>
-        ))}
-      </div>
-
-      {/* Search */}
-      <div className="glass-card rounded-2xl p-4 animate-fade-in" style={{ animationDelay: '0.1s' }}>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+      {/* Search + status filters */}
+      <div className="toolbar glass-card animate-fade-in" style={{ animationDelay: '0.05s' }}>
+        <div className="search-field">
+          <Search />
           <input
             type="text"
             placeholder="Search by model, run ID..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input-dark w-full pl-10"
+            className="input-dark"
+            aria-label="Search runs"
           />
+        </div>
+        <div className="chip-group">
+          {Object.entries(statusCounts).map(([status, count]) => (
+            <button
+              key={status}
+              onClick={() => setStatusFilter(status)}
+              aria-pressed={statusFilter === status}
+              className="filter-chip"
+            >
+              {status.charAt(0).toUpperCase() + status.slice(1)} ({count})
+            </button>
+          ))}
         </div>
       </div>
 
@@ -237,8 +233,10 @@ const RunPlayground = () => {
                 ))
               ) : filteredRuns.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="text-center py-10 text-slate-500">
-                    {searchQuery || statusFilter !== 'all' ? 'No matching runs found' : 'No runs yet. Create one to get started.'}
+                  <td colSpan={6}>
+                    <p className="empty-note py-6">
+                      {searchQuery || statusFilter !== 'all' ? 'No matching runs found' : 'No runs yet. Create one to get started.'}
+                    </p>
                   </td>
                 </tr>
               ) : (
@@ -248,7 +246,7 @@ const RunPlayground = () => {
                       <span className="font-mono text-xs text-slate-400">{run.id?.slice(0, 8)}...</span>
                     </td>
                     <td>
-                      <span className="text-sm text-white font-medium">{run.model || '—'}</span>
+                      <span className="font-medium text-white">{run.model || '—'}</span>
                     </td>
                     <td>
                       <StatusBadge status={run.status} />
@@ -266,14 +264,12 @@ const RunPlayground = () => {
                       </span>
                     </td>
                     <td>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => viewRunDetail(run)}
-                          className="btn-ghost text-xs py-1 px-2 flex items-center gap-1"
-                        >
-                          <Eye className="h-3 w-3" /> Details
-                        </button>
-                      </div>
+                      <button
+                        onClick={() => viewRunDetail(run)}
+                        className="btn-ghost btn-sm"
+                      >
+                        <Eye className="h-3.5 w-3.5" /> Details
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -288,7 +284,7 @@ const RunPlayground = () => {
         <form onSubmit={handleCreateRun} className="space-y-5">
           {/* Prompt Selector */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Select Prompt</label>
+            <label className="field-label">Select Prompt</label>
             <select
               value={selectedPromptId}
               onChange={(e) => {
@@ -305,7 +301,7 @@ const RunPlayground = () => {
           {/* Version Selector */}
           {selectedPromptId && versions.length > 0 && (
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Select Version</label>
+              <label className="field-label">Select Version</label>
               <select
                 value={formData.prompt_version_id}
                 onChange={(e) => setFormData({ ...formData, prompt_version_id: e.target.value })}
@@ -325,7 +321,7 @@ const RunPlayground = () => {
           {/* Or manual ID */}
           {!selectedPromptId && (
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Prompt Version ID</label>
+              <label className="field-label">Prompt Version ID</label>
               <input
                 type="text"
                 value={formData.prompt_version_id}
@@ -339,7 +335,7 @@ const RunPlayground = () => {
 
           {/* Model */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Model</label>
+            <label className="field-label">Model</label>
             <select
               value={formData.model}
               onChange={(e) => setFormData({ ...formData, model: e.target.value })}
@@ -353,11 +349,11 @@ const RunPlayground = () => {
 
           {/* Input Variables */}
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Input Variables (JSON)</label>
+            <label className="field-label">Input Variables (JSON)</label>
             <textarea
               value={formData.input_data}
               onChange={(e) => setFormData({ ...formData, input_data: e.target.value })}
-              className="input-dark w-full font-mono text-sm"
+              className="input-dark w-full font-mono"
               rows={6}
               required
             />
@@ -365,40 +361,36 @@ const RunPlayground = () => {
 
           {/* Result */}
           {submitResult && (
-            <div className={`rounded-xl p-4 ${
-              submitResult.type === 'error'
-                ? 'bg-red-500/10 border border-red-500/20'
-                : 'bg-emerald-500/10 border border-emerald-500/20'
+            <div className={`border rounded-xl p-4 ${
+              submitResult.type === 'error' ? 'alert-error' : 'alert-success'
             }`}>
-              <div className="flex items-center gap-2 text-sm font-medium mb-1">
+              <div className="flex items-center gap-2 text-sm font-medium">
                 {submitResult.type === 'error' ? (
-                  <XCircle className="h-4 w-4 text-red-400" />
+                  <XCircle className="h-4 w-4 flex-shrink-0" />
                 ) : (
-                  <CheckCircle className="h-4 w-4 text-emerald-400" />
+                  <CheckCircle className="h-4 w-4 flex-shrink-0" />
                 )}
-                <span className={submitResult.type === 'error' ? 'text-red-300' : 'text-emerald-300'}>
-                  {submitResult.message}
-                </span>
+                <span>{submitResult.message}</span>
               </div>
               {submitResult.finalStatus && (
                 <div className="mt-3">
-                  <p className="text-xs text-slate-400 mb-1">Result:</p>
+                  <p className="label-caps mb-1.5">Result</p>
                   <pre className="code-block text-xs max-h-40 overflow-auto">
                     {JSON.stringify(submitResult.finalStatus.result || submitResult.finalStatus, null, 2)}
                   </pre>
                 </div>
               )}
               {!submitResult.finalStatus && submitResult.type === 'success' && (
-                <div className="flex items-center gap-2 mt-2 text-xs text-slate-400">
+                <div className="flex items-center gap-2 mt-3 text-xs text-slate-400">
                   <Loader className="h-3 w-3 animate-spin" /> Waiting for result...
                 </div>
               )}
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="modal-actions">
             <button type="button" onClick={() => setShowCreateModal(false)} className="btn-secondary">Cancel</button>
-            <button type="submit" disabled={submitting} className="btn-primary flex items-center gap-2">
+            <button type="submit" disabled={submitting} className="btn-primary">
               {submitting ? <><Loader className="h-4 w-4 animate-spin" /> Running...</> : <><Play className="h-4 w-4" /> Run Prompt</>}
             </button>
           </div>
@@ -408,29 +400,29 @@ const RunPlayground = () => {
       {/* ===== RUN DETAIL MODAL ===== */}
       <Modal isOpen={showDetailModal} onClose={() => setShowDetailModal(false)} title="Run Details" size="lg">
         {runDetail && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="glass-card rounded-xl p-4">
-                <p className="text-xs text-slate-500 mb-1">Run ID</p>
+                <p className="label-caps mb-1.5">Run ID</p>
                 <p className="text-sm font-mono text-white break-all">{runDetail.id}</p>
               </div>
               <div className="glass-card rounded-xl p-4">
-                <p className="text-xs text-slate-500 mb-1">Status</p>
+                <p className="label-caps mb-1.5">Status</p>
                 <StatusBadge status={runDetail.status} />
               </div>
               <div className="glass-card rounded-xl p-4">
-                <p className="text-xs text-slate-500 mb-1">Model</p>
+                <p className="label-caps mb-1.5">Model</p>
                 <p className="text-sm text-white">{runDetail.model || '—'}</p>
               </div>
               <div className="glass-card rounded-xl p-4">
-                <p className="text-xs text-slate-500 mb-1">Latency</p>
+                <p className="label-caps mb-1.5">Latency</p>
                 <p className="text-sm font-mono text-white">{runDetail.latency_ms ? `${runDetail.latency_ms}ms` : '—'}</p>
               </div>
             </div>
 
             {runDetail.output && (
               <div>
-                <p className="text-sm font-medium text-slate-300 mb-2">Output</p>
+                <p className="field-label">Output</p>
                 <pre className="code-block text-xs max-h-60 overflow-auto">
                   {typeof runDetail.output === 'object' ? JSON.stringify(runDetail.output, null, 2) : runDetail.output}
                 </pre>
@@ -439,7 +431,7 @@ const RunPlayground = () => {
 
             {runDetail.error && (
               <div>
-                <p className="text-sm font-medium text-red-300 mb-2">Error</p>
+                <p className="field-label text-red-300">Error</p>
                 <pre className="code-block text-xs border-red-500/20 max-h-40 overflow-auto text-red-300">
                   {runDetail.error}
                 </pre>

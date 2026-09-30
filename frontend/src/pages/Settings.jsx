@@ -19,8 +19,8 @@ const Settings = () => {
   return (
     <div className="space-y-6 max-w-2xl">
       <div className="animate-fade-in">
-        <h2 className="text-2xl font-bold text-white">Settings</h2>
-        <p className="text-sm text-slate-400 mt-1">Configure your dashboard preferences</p>
+        <h1 className="page-title">Settings</h1>
+        <p className="page-subtitle">Configure your dashboard preferences</p>
       </div>
 
       {/* API Key */}
@@ -30,7 +30,7 @@ const Settings = () => {
             <Key className="h-5 w-5 text-amber-400" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">API Key</h3>
+            <h3 className="card-title">API Key</h3>
             <p className="text-xs text-slate-500">Used for authenticating API requests</p>
           </div>
         </div>
@@ -43,7 +43,7 @@ const Settings = () => {
             placeholder="Enter your API key..."
           />
           <div className="flex items-center gap-3">
-            <button onClick={handleSave} className="btn-primary flex items-center gap-2">
+            <button onClick={handleSave} className="btn-primary">
               <Save className="h-4 w-4" /> Save Key
             </button>
             {saved && (
@@ -62,14 +62,12 @@ const Settings = () => {
             <Palette className="h-5 w-5 text-violet-400" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">Appearance</h3>
+            <h3 className="card-title">Appearance</h3>
             <p className="text-xs text-slate-500">Dashboard theme configuration</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 rounded-xl bg-primary-500/15 border border-primary-500/20 text-primary-300 text-sm font-medium">
-            Dark Mode
-          </div>
+          <span className="badge badge-active">Dark Mode</span>
           <span className="text-xs text-slate-500">Active</span>
         </div>
       </div>
@@ -81,7 +79,7 @@ const Settings = () => {
             <Bell className="h-5 w-5 text-pink-400" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">Notifications</h3>
+            <h3 className="card-title">Notifications</h3>
             <p className="text-xs text-slate-500">Alert preferences</p>
           </div>
         </div>
@@ -100,14 +98,14 @@ const Settings = () => {
             <Shield className="h-5 w-5 text-cyan-400" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-white">About</h3>
+            <h3 className="card-title">About</h3>
             <p className="text-xs text-slate-500">System information</p>
           </div>
         </div>
         <div className="space-y-2 text-sm text-slate-400">
-          <div className="flex justify-between"><span>Version</span><span className="text-white">1.0.0</span></div>
-          <div className="flex justify-between"><span>API Base</span><span className="font-mono text-xs text-white">localhost:8000/api/v1</span></div>
-          <div className="flex justify-between"><span>Framework</span><span className="text-white">React + Vite</span></div>
+          <div className="flex justify-between gap-4"><span>Version</span><span className="text-white">1.0.0</span></div>
+          <div className="flex justify-between gap-4"><span>API Base</span><span className="font-mono text-xs text-white">localhost:8000/api/v1</span></div>
+          <div className="flex justify-between gap-4"><span>Framework</span><span className="text-white">React + Vite</span></div>
         </div>
       </div>
     </div>
@@ -121,7 +119,10 @@ const SettingToggle = ({ label, defaultOn }) => {
       <span className="text-sm text-slate-300">{label}</span>
       <button
         onClick={() => setOn(!on)}
-        className={`relative w-11 h-6 rounded-full transition-colors ${
+        role="switch"
+        aria-checked={on}
+        aria-label={label}
+        className={`relative w-11 h-6 flex-shrink-0 rounded-full transition-colors ${
           on ? 'bg-primary-500' : 'bg-slate-600'
         }`}
       >

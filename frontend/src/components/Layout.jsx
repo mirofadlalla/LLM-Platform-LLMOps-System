@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, Play, Beaker, Database, Settings, ChevronLeft,
-  ChevronRight, Activity, Bell, Search, Zap, Menu, X, BarChart3
+  ChevronRight, Bell, Zap, Menu, BarChart3
 } from 'lucide-react';
 import { healthService } from '../services/api';
 
@@ -38,6 +38,8 @@ const Layout = ({ children }) => {
   };
 
   const currentPage = navigation.find(n => n.href === location.pathname)?.name || 'LLMOps';
+  // The icon-only rail is a desktop feature; the mobile drawer always shows labels
+  const compact = collapsed && !mobileOpen;
 
   return (
     <div className="min-h-screen bg-surface-950 flex">
@@ -52,23 +54,23 @@ const Layout = ({ children }) => {
       {/* Sidebar */}
       <aside
         className={`
-          fixed inset-y-0 left-0 z-50
-          ${collapsed ? 'w-[72px]' : 'w-64'}
+          fixed inset-y-0 left-0 z-50 w-64
+          ${collapsed ? 'md:w-[72px]' : ''}
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}
           md:translate-x-0
           transition-all duration-300 ease-in-out
-          glass flex flex-col
+          glass border-r border-white/5 flex flex-col
         `}
       >
         {/* Logo */}
-        <div className={`flex items-center h-16 px-4 border-b border-white/5 ${collapsed ? 'justify-center' : 'gap-3'}`}>
+        <div className={`flex items-center h-16 px-4 border-b border-white/5 ${compact ? 'justify-center' : 'gap-3'}`}>
           <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center flex-shrink-0 shadow-lg shadow-primary-500/20">
             <Zap className="h-5 w-5 text-white" />
           </div>
-          {!collapsed && (
+          {!compact && (
             <div className="animate-fade-in">
-              <h1 className="text-lg font-bold gradient-text tracking-tight">LLMOps</h1>
-              <p className="text-[10px] text-slate-500 -mt-0.5 font-medium">Prompt Management</p>
+              <p className="text-lg font-bold gradient-text tracking-tight leading-tight">LLMOps</p>
+              <p className="text-[11px] leading-tight text-slate-500 font-medium">Prompt Management</p>
             </div>
           )}
         </div>
@@ -81,24 +83,25 @@ const Layout = ({ children }) => {
               <Link
                 key={item.name}
                 to={item.href}
+                aria-current={isActive ? 'page' : undefined}
                 className={`
                   group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium
-                  transition-all duration-200
-                  ${collapsed ? 'justify-center' : ''}
+                  transition-colors duration-200
+                  ${compact ? 'justify-center' : ''}
                   ${isActive
                     ? 'bg-primary-500/15 text-primary-300 shadow-lg shadow-primary-500/5'
                     : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
                   }
                 `}
-                title={collapsed ? item.name : undefined}
+                title={compact ? item.name : undefined}
               >
                 <item.icon
                   className={`h-5 w-5 flex-shrink-0 transition-colors ${
                     isActive ? 'text-primary-400' : 'text-slate-500 group-hover:text-slate-300'
                   }`}
                 />
-                {!collapsed && <span>{item.name}</span>}
-                {isActive && !collapsed && (
+                {!compact && <span>{item.name}</span>}
+                {isActive && !compact && (
                   <div className="ml-auto w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse-glow" />
                 )}
               </Link>
@@ -110,7 +113,8 @@ const Layout = ({ children }) => {
         <div className="p-3 border-t border-white/5 hidden md:block">
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all"
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+            className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-xl text-sm text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-colors"
           >
             {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
             {!collapsed && <span className="text-xs">Collapse</span>}
@@ -123,16 +127,15 @@ const Layout = ({ children }) => {
         {/* Header */}
         <header className="sticky top-0 z-30 glass border-b border-white/5">
           <div className="flex items-center justify-between h-16 px-4 md:px-6">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => setMobileOpen(true)}
-                className="md:hidden p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5"
+                className="icon-btn -ml-2 md:hidden"
+                aria-label="Open navigation menu"
               >
                 <Menu className="h-5 w-5" />
               </button>
-              <div>
-                <h2 className="text-lg font-semibold text-white">{currentPage}</h2>
-              </div>
+              <p className="text-sm font-medium text-slate-300">{currentPage}</p>
             </div>
 
             <div className="flex items-center gap-3">
@@ -151,7 +154,8 @@ const Layout = ({ children }) => {
               {/* Notifications */}
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+                className="icon-btn relative"
+                aria-label="Notifications"
               >
                 <Bell className="h-5 w-5" />
               </button>

@@ -3,7 +3,7 @@ import { promptService } from '../services/api';
 import { format } from 'date-fns';
 import {
   Terminal, Plus, GitBranch, TestTube, Star, Play, Search,
-  SortAsc, SortDesc, ChevronDown, Copy, Eye, Trash2, ArrowUpDown
+  Copy, Eye, ArrowUpDown, Download
 } from 'lucide-react';
 import Modal from '../components/Modal';
 import RunPromptModal from '../components/RunPromptModal';
@@ -159,51 +159,53 @@ const Prompts = () => {
     <div className="space-y-6">
       {/* Toast Notification */}
       {notification && (
-        <div className={`fixed top-4 right-4 z-[100] px-4 py-3 rounded-xl shadow-2xl animate-slide-in text-sm font-medium flex items-center gap-2 ${
-          notification.type === 'error'
-            ? 'bg-red-500/20 border border-red-500/30 text-red-300'
-            : 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-300'
-        }`}>
+        <div
+          role="status"
+          className={`toast alert animate-slide-in ${notification.type === 'error' ? 'alert-error' : 'alert-success'}`}
+        >
           {notification.message}
         </div>
       )}
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 animate-fade-in">
+      <div className="page-header animate-fade-in">
         <div>
-          <h2 className="text-2xl font-bold text-white">Prompts</h2>
-          <p className="text-sm text-slate-400 mt-1">{prompts.length} prompt{prompts.length !== 1 ? 's' : ''} total</p>
+          <h1 className="page-title">Prompts</h1>
+          <p className="page-subtitle">{prompts.length} prompt{prompts.length !== 1 ? 's' : ''} total</p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="btn-primary flex items-center gap-2"
+          className="btn-primary"
         >
           <Plus className="h-4 w-4" /> Create Prompt
         </button>
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="glass-card rounded-2xl p-4 flex flex-col sm:flex-row gap-3 items-start sm:items-center animate-fade-in" style={{ animationDelay: '0.1s' }}>
-        <div className="relative flex-1 w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+      <div className="toolbar glass-card animate-fade-in" style={{ animationDelay: '0.1s' }}>
+        <div className="search-field">
+          <Search />
           <input
             type="text"
             placeholder="Search prompts by name or description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input-dark w-full pl-10"
+            className="input-dark"
+            aria-label="Search prompts"
           />
         </div>
-        <div className="flex gap-2">
+        <div className="chip-group">
           <button
             onClick={() => toggleSort('name')}
-            className={`btn-ghost flex items-center gap-1.5 text-xs ${sortField === 'name' ? 'text-primary-400' : ''}`}
+            aria-pressed={sortField === 'name'}
+            className="btn-ghost btn-sm"
           >
             <ArrowUpDown className="h-3.5 w-3.5" /> Name
           </button>
           <button
             onClick={() => toggleSort('created_at')}
-            className={`btn-ghost flex items-center gap-1.5 text-xs ${sortField === 'created_at' ? 'text-primary-400' : ''}`}
+            aria-pressed={sortField === 'created_at'}
+            className="btn-ghost btn-sm"
           >
             <ArrowUpDown className="h-3.5 w-3.5" /> Date
           </button>
@@ -212,43 +214,43 @@ const Prompts = () => {
 
       {/* Prompts Grid */}
       {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {[...Array(6)].map((_, i) => <div key={i} className="h-40 skeleton rounded-2xl" />)}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {filteredPrompts.map((prompt, i) => (
             <div
               key={prompt.id}
-              className="glass-card rounded-2xl overflow-hidden animate-fade-in opacity-0"
+              className="glass-card card-interactive rounded-2xl overflow-hidden flex flex-col animate-fade-in opacity-0"
               style={{ animationDelay: `${0.05 * i}s` }}
             >
-              <div className="p-5">
+              <div className="p-5 flex-1">
                 <div className="flex items-start gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/20 flex items-center justify-center flex-shrink-0">
                     <Terminal className="h-5 w-5 text-violet-400" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-sm font-semibold text-white truncate">{prompt.name}</h3>
+                    <h3 className="card-title truncate" title={prompt.name}>{prompt.name}</h3>
                     <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{prompt.description || 'No description'}</p>
                   </div>
                 </div>
                 {prompt.created_at && (
-                  <p className="text-[11px] text-slate-600 mt-3">
+                  <p className="text-xs text-slate-500 mt-3">
                     Created {format(new Date(prompt.created_at), 'MMM dd, yyyy')}
                   </p>
                 )}
               </div>
-              <div className="px-5 py-3 border-t border-white/5 bg-white/[0.015] flex flex-wrap gap-2">
+              <div className="card-footer justify-start gap-4">
                 <button
                   onClick={() => handleViewVersions(prompt)}
-                  className="text-xs font-medium text-primary-400 hover:text-primary-300 flex items-center gap-1 transition-colors"
+                  className="btn-link"
                 >
                   <GitBranch className="h-3 w-3" /> Versions
                 </button>
                 <button
                   onClick={() => { setSelectedPrompt(prompt); handleViewVersions(prompt); }}
-                  className="text-xs font-medium text-cyan-400 hover:text-cyan-300 flex items-center gap-1 transition-colors"
+                  className="btn-link"
                 >
                   <Eye className="h-3 w-3" /> View
                 </button>
@@ -259,12 +261,12 @@ const Prompts = () => {
       )}
 
       {filteredPrompts.length === 0 && !loading && (
-        <div className="text-center py-16 animate-fade-in">
-          <Terminal className="h-12 w-12 text-slate-600 mx-auto mb-3" />
-          <p className="text-slate-400 font-medium">
+        <div className="empty-state animate-fade-in">
+          <Terminal />
+          <p className="empty-state-title">
             {searchQuery ? 'No prompts match your search' : 'No prompts yet'}
           </p>
-          <p className="text-sm text-slate-600 mt-1">
+          <p className="empty-state-hint">
             {searchQuery ? 'Try different keywords' : 'Create your first prompt to get started'}
           </p>
         </div>
@@ -274,7 +276,7 @@ const Prompts = () => {
       <Modal isOpen={showCreateModal} onClose={() => setShowCreateModal(false)} title="Create New Prompt" size="lg">
         <form onSubmit={handleCreatePrompt} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Name *</label>
+            <label className="field-label">Name *</label>
             <input
               type="text"
               value={newPrompt.name}
@@ -285,7 +287,7 @@ const Prompts = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Description</label>
+            <label className="field-label">Description</label>
             <input
               type="text"
               value={newPrompt.description}
@@ -295,11 +297,11 @@ const Prompts = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-300 mb-1.5">Template (v1) *</label>
+            <label className="field-label">Template (v1) *</label>
             <textarea
               value={newPrompt.template}
               onChange={(e) => setNewPrompt({...newPrompt, template: e.target.value})}
-              className="input-dark w-full font-mono text-sm"
+              className="input-dark w-full font-mono"
               rows={6}
               required
               placeholder={'Summarize the following text:\n{text}'}
@@ -308,7 +310,7 @@ const Prompts = () => {
               <div className="mt-2 flex flex-wrap gap-1.5">
                 <span className="text-xs text-slate-500">Variables:</span>
                 {previewVariables.map(v => (
-                  <span key={v} className="badge badge-active text-[10px]">{`{${v}}`}</span>
+                  <span key={v} className="badge badge-active font-mono">{`{${v}}`}</span>
                 ))}
               </div>
             )}
@@ -317,14 +319,14 @@ const Prompts = () => {
           {/* Preview */}
           {newPrompt.template && (
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-1.5">Preview</label>
+              <label className="field-label">Preview</label>
               <div className="code-block text-xs">
                 {newPrompt.template.replace(/\{(\w+)\}/g, (_, v) => `<${v}>`)}
               </div>
             </div>
           )}
 
-          <div className="flex justify-end gap-3 pt-2">
+          <div className="modal-actions">
             <button type="button" onClick={() => setShowCreateModal(false)} className="btn-secondary">
               Cancel
             </button>
@@ -338,79 +340,79 @@ const Prompts = () => {
         <div className="space-y-6">
           {/* Version List */}
           <div>
-            <h4 className="text-sm font-semibold text-slate-300 mb-3">Version History</h4>
+            <h4 className="section-title">Version History</h4>
             <div className="space-y-3">
               {versions.map((version, i) => (
                 <div
                   key={version.id}
-                  className={`rounded-xl border p-4 transition-all ${
+                  className={`rounded-xl border p-4 ${
                     version.is_active
                       ? 'border-primary-500/30 bg-primary-500/5'
-                      : 'border-white/5 bg-white/[0.02] hover:bg-white/[0.04]'
+                      : 'border-white/5 bg-white/[0.02]'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-2">
+                      <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span className="text-sm font-semibold text-white">{version.version}</span>
                         {version.is_active && (
                           <span className="badge badge-success">Active</span>
                         )}
                         {version.created_at && (
-                          <span className="text-[11px] text-slate-500">
+                          <span className="text-xs text-slate-500">
                             {format(new Date(version.created_at), 'MMM dd, yyyy HH:mm')}
                           </span>
                         )}
                       </div>
-                      <pre className="code-block text-xs mt-2 max-h-24 overflow-hidden">{version.template}</pre>
+                      <pre className="code-block text-xs max-h-24 overflow-hidden">{version.template}</pre>
                     </div>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-2">
                     {!version.is_active && (
                       <button
                         onClick={() => handleActivateVersion(version.id)}
-                        className="btn-ghost text-xs text-primary-400 hover:text-primary-300"
+                        className="btn-secondary btn-sm"
                       >
                         Activate
                       </button>
                     )}
                     <button
                       onClick={() => handleEvaluate(version)}
-                      className="btn-ghost text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1"
+                      className="btn-ghost btn-sm"
                     >
-                      <TestTube className="h-3 w-3" /> Evaluate
+                      <TestTube className="h-3.5 w-3.5" /> Evaluate
                     </button>
                     <button
                       onClick={() => handleRunPrompt(version)}
-                      className="btn-ghost text-xs text-blue-400 hover:text-blue-300 flex items-center gap-1"
+                      className="btn-ghost btn-sm"
                     >
-                      <Play className="h-3 w-3" /> Run
+                      <Play className="h-3.5 w-3.5" /> Run
                     </button>
                     <button
                       onClick={() => navigator.clipboard.writeText(version.id)}
-                      className="btn-ghost text-xs text-slate-400 hover:text-slate-300 flex items-center gap-1"
+                      className="btn-ghost btn-sm"
                     >
-                      <Copy className="h-3 w-3" /> Copy ID
+                      <Copy className="h-3.5 w-3.5" /> Copy ID
                     </button>
                   </div>
                 </div>
               ))}
               {versions.length === 0 && (
-                <p className="text-sm text-slate-500 text-center py-6">No versions found</p>
+                <p className="empty-note">No versions found</p>
               )}
             </div>
           </div>
 
           {/* Create New Version */}
-          <div className="border-t border-white/5 pt-5">
-            <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
+          <div className="section-divider">
+            <h4 className="section-title">
               <Plus className="h-4 w-4 text-primary-400" /> Create New Version
             </h4>
             <form onSubmit={handleCreateVersion} className="space-y-3">
               <textarea
                 value={newVersion.template}
                 onChange={(e) => setNewVersion({ template: e.target.value })}
-                className="input-dark w-full font-mono text-sm"
+                className="input-dark w-full font-mono"
                 rows={4}
                 required
                 placeholder="Enter new template..."
@@ -420,21 +422,21 @@ const Prompts = () => {
           </div>
 
           {/* Golden Examples */}
-          <div className="border-t border-white/5 pt-5">
-            <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <Star className="h-4 w-4 text-yellow-500" /> Golden Examples
+          <div className="section-divider">
+            <h4 className="section-title">
+              <Star className="h-4 w-4 text-amber-400" /> Golden Examples
             </h4>
             <GoldenExamples promptId={selectedPrompt?.id} />
           </div>
 
           {/* Version Diff */}
-          <div className="border-t border-white/5 pt-5">
-            <h4 className="text-sm font-semibold text-slate-300 mb-3 flex items-center gap-2">
-              <GitBranch className="h-4 w-4 text-purple-400" /> Compare Versions
+          <div className="section-divider">
+            <h4 className="section-title">
+              <GitBranch className="h-4 w-4 text-primary-400" /> Compare Versions
             </h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">From</label>
+                <label className="field-label">From</label>
                 <select
                   value={diffFromVersion}
                   onChange={(e) => setDiffFromVersion(e.target.value)}
@@ -445,7 +447,7 @@ const Prompts = () => {
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-slate-500 mb-1">To</label>
+                <label className="field-label">To</label>
                 <select
                   value={diffToVersion}
                   onChange={(e) => setDiffToVersion(e.target.value)}
@@ -456,7 +458,7 @@ const Prompts = () => {
                 </select>
               </div>
             </div>
-            <button onClick={handleDiff} className="btn-secondary w-full mt-3 flex items-center justify-center gap-2">
+            <button onClick={handleDiff} className="btn-secondary w-full mt-3">
               <GitBranch className="h-4 w-4" /> Show Diff
             </button>
           </div>
@@ -466,7 +468,7 @@ const Prompts = () => {
       {/* ===== DIFF MODAL ===== */}
       <Modal isOpen={showDiffModal} onClose={() => setShowDiffModal(false)} title="Version Comparison" size="lg">
         {diffResult && (
-          <div className="space-y-4">
+          <div className="space-y-5">
             <div className="flex flex-wrap gap-3 text-xs text-slate-400">
               <span>From: <span className="text-white font-medium">{diffResult.from_version_id?.slice(0, 8)}...</span></span>
               <span>→</span>
@@ -486,7 +488,7 @@ const Prompts = () => {
                 </div>
               ))}
             </div>
-            <div className="flex justify-end gap-3">
+            <div className="modal-actions">
               <button
                 onClick={() => {
                   const blob = new Blob([JSON.stringify(diffResult, null, 2)], { type: 'application/json' });
@@ -496,11 +498,11 @@ const Prompts = () => {
                   a.download = 'diff.json';
                   a.click();
                 }}
-                className="btn-ghost text-xs"
+                className="btn-ghost"
               >
-                Export JSON
+                <Download className="h-4 w-4" /> Export JSON
               </button>
-              <button onClick={() => setShowDiffModal(false)} className="btn-primary">Close</button>
+              <button onClick={() => setShowDiffModal(false)} className="btn-secondary">Close</button>
             </div>
           </div>
         )}

@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { evaluationService } from '../services/api';
-import { CheckCircle, XCircle, RefreshCw, BarChart3, Download } from 'lucide-react';
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
-} from 'recharts';
+import { CheckCircle, XCircle, RefreshCw, BarChart3, Download, Loader } from 'lucide-react';
 import Modal from './Modal';
 
 const EvaluationResults = ({ promptId, versionId, isOpen, onClose }) => {
@@ -72,21 +69,21 @@ const EvaluationResults = ({ promptId, versionId, isOpen, onClose }) => {
           <button
             onClick={handleRerun}
             disabled={evaluating}
-            className="btn-primary text-xs flex items-center gap-2"
+            className="btn-primary btn-sm"
           >
             <RefreshCw className={`h-3.5 w-3.5 ${evaluating ? 'animate-spin' : ''}`} />
             {evaluating ? 'Running...' : 'Re-Run Evaluation'}
           </button>
           {results && (
-            <button onClick={exportResults} className="btn-ghost text-xs flex items-center gap-1.5">
-              <Download className="h-3.5 w-3.5" /> Export
+            <button onClick={exportResults} className="btn-ghost btn-sm">
+              <Download className="h-3.5 w-3.5" /> Export JSON
             </button>
           )}
         </div>
 
         {/* Error */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/20 text-red-300 px-4 py-3 rounded-xl text-sm">
+          <div className="alert alert-error" role="alert">
             {error}
           </div>
         )}
@@ -94,7 +91,7 @@ const EvaluationResults = ({ promptId, versionId, isOpen, onClose }) => {
         {/* Loading */}
         {loading && (
           <div className="text-center py-12">
-            <RefreshCw className="h-8 w-8 animate-spin text-primary-400 mx-auto mb-3" />
+            <Loader className="h-8 w-8 animate-spin text-primary-400 mx-auto mb-3" />
             <p className="text-sm text-slate-400">Running evaluation against golden examples...</p>
           </div>
         )}
@@ -103,22 +100,26 @@ const EvaluationResults = ({ promptId, versionId, isOpen, onClose }) => {
         {!loading && results && (
           <div className="space-y-5">
             {/* Summary Cards */}
-            <div className="grid grid-cols-3 gap-4">
-              <div className="glass-card rounded-xl p-4 border">
-                <p className="text-[11px] text-slate-500 uppercase font-semibold mb-1">Total Tests</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="glass-card rounded-xl p-4">
+                <p className="label-caps mb-1">Total Tests</p>
                 <p className="text-2xl font-bold text-white">{results.total_tests || 0}</p>
               </div>
               <div className={`rounded-xl p-4 border ${getScoreBg(results.average_score || 0)}`}>
-                <p className={`text-[11px] uppercase font-semibold mb-1 ${getScoreColor(results.average_score || 0)}`}>Avg Score</p>
+                <p className={`label-caps mb-1 ${getScoreColor(results.average_score || 0)}`}>Avg Score</p>
                 <p className={`text-2xl font-bold ${getScoreColor(results.average_score || 0)}`}>
                   {results.average_score ? (results.average_score * 100).toFixed(1) : 0}%
                 </p>
               </div>
-              <div className="glass-card rounded-xl p-4 border">
-                <p className="text-[11px] text-slate-500 uppercase font-semibold mb-1">Rating</p>
-                <p className="text-2xl font-bold text-white">
-                  {results.average_score >= 0.8 ? '🟢' : results.average_score >= 0.5 ? '🟡' : '🔴'}
-                </p>
+              <div className="glass-card rounded-xl p-4">
+                <p className="label-caps mb-2">Rating</p>
+                {results.average_score >= 0.8 ? (
+                  <span className="badge badge-success">Excellent</span>
+                ) : results.average_score >= 0.5 ? (
+                  <span className="badge badge-warning">Good</span>
+                ) : (
+                  <span className="badge badge-error">Needs work</span>
+                )}
               </div>
             </div>
 
@@ -155,14 +156,14 @@ const EvaluationResults = ({ promptId, versionId, isOpen, onClose }) => {
 
         {/* No results */}
         {!loading && !results && !error && (
-          <div className="text-center py-12">
-            <BarChart3 className="h-12 w-12 text-slate-600 mx-auto mb-3" />
-            <p className="text-slate-400">Click "Re-Run Evaluation" to test this version</p>
+          <div className="empty-state py-10">
+            <BarChart3 />
+            <p className="empty-state-title">Click "Re-Run Evaluation" to test this version</p>
           </div>
         )}
 
         {/* Close */}
-        <div className="flex justify-end pt-3 border-t border-white/5">
+        <div className="modal-actions">
           <button onClick={onClose} className="btn-secondary">Close</button>
         </div>
       </div>
