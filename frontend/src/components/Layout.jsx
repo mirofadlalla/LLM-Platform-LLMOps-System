@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Play, Beaker, Database, Settings, ChevronLeft,
-  ChevronRight, Bell, Zap, Menu, BarChart3, Sun, Moon
+  ChevronRight, Bell, Zap, Menu, BarChart3, Sun, Moon, LogOut, User
 } from 'lucide-react';
 import { healthService } from '../services/api';
 import { useTheme } from './ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 const navigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
@@ -18,11 +19,15 @@ const navigation = [
 
 const Layout = ({ children }) => {
   const location = useLocation();
+  const navigate  = useNavigate();
   const { theme, setPreference } = useTheme();
+  const { user, logout } = useAuth();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [apiHealthy, setApiHealthy] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
+
+  const handleLogout = () => { logout(); navigate('/login'); };
 
   useEffect(() => {
     checkHealth();
@@ -171,6 +176,24 @@ const Layout = ({ children }) => {
               >
                 <Bell className="h-5 w-5" />
               </button>
+
+              {/* User badge + logout */}
+              {user && (
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5 text-xs text-slate-400">
+                    <User className="h-3.5 w-3.5" />
+                    <span className="font-medium text-slate-300">{user.username}</span>
+                  </div>
+                  <button
+                    onClick={handleLogout}
+                    className="icon-btn text-slate-500 hover:text-rose-400"
+                    aria-label="Sign out"
+                    title="Sign out"
+                  >
+                    <LogOut className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </header>
