@@ -37,10 +37,10 @@ permissions:
 
 jobs:
   # ============================================================================
-  # Continuous Integration (CI): Test & Validate Backend
+  # Job 1 – Unit & Sanity Tests (no database required)
   # ============================================================================
-  ci:
-    name: Backend CI (Tests & Image Build Test)
+  unit-tests:
+    name: Unit & Sanity Tests
     runs-on: ubuntu-latest
 
     steps:
@@ -58,9 +58,105 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pytest
 
-      - name: Run Backend Pytest Suite
+      - name: Run unit and sanity tests (no DB)
         run: |
-          pytest -v
+          pytest -v tests/test_backend_sanity.py
+
+  # ============================================================================
+  # Job 2 – Migration Tests (requires PostgreSQL service container)
+  # Runs BEFORE the Docker image is built so a broken migration cannot
+  # be published to GHCR.
+  # ============================================================================
+  migration-tests:
+    name: Alembic Migration Tests
+    runs-on: ubuntu-latest
+
+    # ------------------------------------------------------------------
+    # Ephemeral PostgreSQL instance — matches the production Postgres 15
+    # image used in docker-compose.yml.
+    # ------------------------------------------------------------------
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: llmops_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d llmops_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+          --health-start-period 10s
+
+    env:
+      # Picked up by tests/conftest.py and by alembic env.py (via Settings)
+      TEST_DATABASE_URL: postgresql+psycopg2://postgres:postgres@localhost:5432/llmops_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: llmops_test
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
+      # Dummy values — migration tests don't need Redis or external APIs
+      REDIS_HOST: localhost
+      REDIS_PORT: 6379
+      JWT_SECRET_KEY: ci-test-secret-not-for-production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pytest
+
+      - name: Wait for PostgreSQL to be ready
+        run: |
+          until pg_isready -h localhost -p 5432 -U postgres; do
+            echo "Waiting for postgres..."
+            sleep 2
+          done
+
+      - name: Run static chain validation (no DB)
+        run: |
+          pytest -v tests/test_migrations.py::TestStaticChain \
+            --tb=short \
+            -p no:warnings
+
+      - name: Run migration upgrade / downgrade / roundtrip tests
+        run: |
+          pytest -v tests/test_migrations.py::TestMigrationExecution \
+            --tb=short \
+            -p no:warnings
+
+      - name: Upload pytest report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-test-report
+          path: .pytest_cache/
+
+  # ============================================================================
+  # Job 3 – Build & Sanity-Check the Docker Image
+  # Only runs after BOTH unit-tests AND migration-tests pass.
+  # ============================================================================
+  ci:
+    name: Backend CI (Docker Image Build Test)
+    runs-on: ubuntu-latest
+    needs: [unit-tests, migration-tests]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -85,7 +181,8 @@ jobs:
           "
 
   # ============================================================================
-  # Continuous Deployment (CD): Publish Production Image to GHCR
+  # Job 4 – Publish Production Image to GHCR
+  # Only runs after ci job passes, on push to main or manual dispatch.
   # ============================================================================
   cd:
     name: Backend CD (Build & Push to GHCR)
