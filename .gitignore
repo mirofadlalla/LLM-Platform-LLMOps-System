@@ -3,3 +3,6 @@
 !/.env.example
 __pycache__/
 *.pyc
+create_test_api_key.py
+database_design.py
+.pytest_cache

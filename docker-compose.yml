@@ -71,7 +71,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: llmops-backend:latest
+    image: ${BACKEND_IMAGE:-llmops-backend:latest}
     container_name: llmops-migrate
     restart: "no"
     env_file:
@@ -95,7 +95,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: llmops-backend:latest
+    image: ${BACKEND_IMAGE:-llmops-backend:latest}
     container_name: llmops-api
     restart: unless-stopped
     env_file:
@@ -136,7 +136,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: llmops-backend:latest
+    image: ${BACKEND_IMAGE:-llmops-backend:latest}
     container_name: llmops-celery-worker
     restart: unless-stopped
     env_file:
