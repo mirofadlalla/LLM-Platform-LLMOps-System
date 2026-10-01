@@ -10,6 +10,7 @@ import Experiments from './pages/Experiments';
 import Prompts from './pages/Prompts';
 import Analytics from './pages/Analytics';
 import Settings from './pages/Settings';
+import PairwiseTesting from './pages/PairwiseTesting';
 
 /**
  * Redirect to /login if not authenticated.
@@ -37,6 +38,7 @@ function AppRoutes() {
                 <Route path="/prompts"     element={<Prompts />} />
                 <Route path="/runs"        element={<RunPlayground />} />
                 <Route path="/experiments" element={<Experiments />} />
+                <Route path="/pairwise-testing" element={<PairwiseTesting />} />
                 <Route path="/analytics"   element={<Analytics />} />
                 <Route path="/settings"    element={<Settings />} />
               </Routes>

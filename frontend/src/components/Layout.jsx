@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, Play, Beaker, Database, Settings, ChevronLeft,
-  ChevronRight, Bell, Zap, Menu, BarChart3, Sun, Moon, LogOut, User
+  ChevronRight, Bell, Zap, Menu, BarChart3, Sun, Moon, LogOut, User, GitCompareArrows
 } from 'lucide-react';
 import { healthService } from '../services/api';
 import { useTheme } from './ThemeContext';
@@ -13,6 +13,7 @@ const navigation = [
   { name: 'Prompts', href: '/prompts', icon: Database },
   { name: 'Runs', href: '/runs', icon: Play },
   { name: 'Experiments', href: '/experiments', icon: Beaker },
+  { name: 'Pairwise Testing', href: '/pairwise-testing', icon: GitCompareArrows },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];

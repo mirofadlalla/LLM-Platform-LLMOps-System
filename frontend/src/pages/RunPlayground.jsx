@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { runApiService, promptService } from '../services/api';
+import { runApiService, promptService, modelsService } from '../services/api';
 import { format, formatDistanceToNow } from 'date-fns';
 import {
   Play, RefreshCw, Search, Eye, CheckCircle, XCircle, Loader
@@ -19,10 +19,16 @@ const RunPlayground = () => {
   const [prompts, setPrompts] = useState([]);
   const [selectedPromptId, setSelectedPromptId] = useState('');
   const [versions, setVersions] = useState([]);
+
+  // Provider / model catalog — loaded from backend
+  const [catalog, setCatalog]         = useState({});
+  const [provider, setProvider]       = useState('');
+  const [modelSlug, setModelSlug]     = useState('');
+  const [catalogLoading, setCatalogLoading] = useState(false);
+
   const [formData, setFormData] = useState({
     prompt_version_id: '',
     input_data: '{\n  \n}',
-    model: 'gpt-4o',
   });
   const [submitting, setSubmitting] = useState(false);
   const [submitResult, setSubmitResult] = useState(null);
@@ -58,8 +64,29 @@ const RunPlayground = () => {
   useEffect(() => {
     if (showCreateModal) {
       promptService.list().then(setPrompts).catch(console.error);
+
+      // Fetch provider/model catalog if not yet loaded
+      if (Object.keys(catalog).length === 0) {
+        setCatalogLoading(true);
+        modelsService.catalog()
+          .then(data => {
+            setCatalog(data);
+            const firstProvider = Object.keys(data)[0] || '';
+            setProvider(firstProvider);
+            setModelSlug(data[firstProvider]?.[0]?.slug || '');
+          })
+          .catch(console.error)
+          .finally(() => setCatalogLoading(false));
+      }
     }
   }, [showCreateModal]);
+
+  // Reset model to first in list when provider changes
+  useEffect(() => {
+    if (provider && catalog[provider]) {
+      setModelSlug(catalog[provider][0]?.slug || '');
+    }
+  }, [provider, catalog]);
 
   // Load versions when prompt selected
   useEffect(() => {
@@ -97,7 +124,8 @@ const RunPlayground = () => {
 
       const res = await runApiService.create({
         prompt_version_id: formData.prompt_version_id,
-        model: formData.model,
+        provider,
+        model: modelSlug,
         variables: parsedVars,
       });
 
@@ -333,18 +361,53 @@ const RunPlayground = () => {
             </div>
           )}
 
-          {/* Model */}
-          <div>
-            <label className="field-label">Model</label>
-            <select
-              value={formData.model}
-              onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-              className="input-dark w-full"
-            >
-              <option value="gpt-4o">gpt-4o</option>
-              <option value="gpt-3.5-turbo">gpt-3.5-turbo</option>
-              <option value="gpt-4o-mini">gpt-4o-mini</option>
-            </select>
+          {/* Provider + Model */}
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="field-label">Provider</label>
+              {catalogLoading ? (
+                <div className="input-dark w-full flex items-center gap-2 text-slate-500">
+                  <Loader className="h-4 w-4 animate-spin" /> Loading…
+                </div>
+              ) : (
+                <select
+                  value={provider}
+                  onChange={(e) => setProvider(e.target.value)}
+                  className="input-dark w-full"
+                >
+                  {Object.keys(catalog).length === 0 && (
+                    <option value="">No providers available</option>
+                  )}
+                  {Object.keys(catalog).map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+              )}
+            </div>
+            <div>
+              <label className="field-label">Model</label>
+              {catalogLoading ? (
+                <div className="input-dark w-full flex items-center gap-2 text-slate-500">
+                  <Loader className="h-4 w-4 animate-spin" /> Loading…
+                </div>
+              ) : (
+                <select
+                  value={modelSlug}
+                  onChange={(e) => setModelSlug(e.target.value)}
+                  className="input-dark w-full"
+                  disabled={(catalog[provider] || []).length === 0}
+                >
+                  {(catalog[provider] || []).length === 0 && (
+                    <option value="">Select provider first</option>
+                  )}
+                  {(catalog[provider] || []).map(m => (
+                    <option key={m.slug} value={m.slug}>
+                      {m.display_name || m.slug}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
           </div>
 
           {/* Input Variables */}
@@ -390,7 +453,7 @@ const RunPlayground = () => {
 
           <div className="modal-actions">
             <button type="button" onClick={() => setShowCreateModal(false)} className="btn-secondary">Cancel</button>
-            <button type="submit" disabled={submitting} className="btn-primary">
+            <button type="submit" disabled={submitting || !modelSlug} className="btn-primary">
               {submitting ? <><Loader className="h-4 w-4 animate-spin" /> Running...</> : <><Play className="h-4 w-4" /> Run Prompt</>}
             </button>
           </div>

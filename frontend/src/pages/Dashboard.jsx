@@ -1,13 +1,13 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { promptService, runApiService, experimentService } from '../services/api';
+import { abTestService, promptService, runApiService, experimentService } from '../services/api';
 import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, AreaChart, Area
 } from 'recharts';
 import {
   Clock, CheckCircle, Terminal, Beaker, TrendingUp,
-  Play, RefreshCw, Zap, ArrowUpRight, Activity, Layers
+  Play, RefreshCw, Zap, ArrowUpRight, Activity, Layers, GitCompareArrows, Trophy
 } from 'lucide-react';
 import { format, formatDistanceToNow } from 'date-fns';
 import StatCard from '../components/StatCard';
@@ -20,6 +20,7 @@ const Dashboard = () => {
   const [runs, setRuns] = useState([]);
   const [prompts, setPrompts] = useState([]);
   const [experiments, setExperiments] = useState([]);
+  const [pairwiseTests, setPairwiseTests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -28,15 +29,17 @@ const Dashboard = () => {
       if (isRefresh) setRefreshing(true);
       else setLoading(true);
 
-      const [runsData, promptsData, experimentsData] = await Promise.all([
+      const [runsData, promptsData, experimentsData, pairwiseData] = await Promise.all([
         runApiService.list(0, 50),
         promptService.list(0, 100),
         experimentService.list(0, 100),
+        abTestService.list(0, 50),
       ]);
 
       setRuns(runsData || []);
       setPrompts(promptsData || []);
       setExperiments(experimentsData || []);
+      setPairwiseTests(pairwiseData || []);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -169,6 +172,9 @@ const Dashboard = () => {
           <button onClick={() => navigate('/runs')} className="btn-secondary">
             <Play className="h-4 w-4" /> Go to Playground
           </button>
+          <button onClick={() => navigate('/pairwise-testing')} className="btn-secondary">
+            <GitCompareArrows className="h-4 w-4" /> Compare Versions
+          </button>
         </div>
       </div>
 
@@ -268,30 +274,32 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Recent Experiments */}
+        {/* Recent Pairwise Tests */}
         <div className="glass-card rounded-2xl overflow-hidden animate-fade-in" style={{ animationDelay: '0.45s' }}>
           <div className="card-header">
-            <h3 className="card-title">Recent Experiments</h3>
-            <button onClick={() => navigate('/experiments')} className="btn-link">
+            <h3 className="card-title">Recent Pairwise Tests</h3>
+            <button onClick={() => navigate('/pairwise-testing')} className="btn-link">
               View all <ArrowUpRight className="h-3 w-3" />
             </button>
           </div>
           <div className="divide-y divide-white/5">
-            {experiments.slice(0, 5).map((exp) => (
-              <div key={exp.id} className="list-row flex items-center justify-between gap-3">
+            {pairwiseTests.slice(0, 5).map((test) => (
+              <div key={test.ab_test_id} className="list-row flex items-center justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-200 truncate">{exp.name}</p>
+                  <p className="text-sm font-medium text-slate-200 truncate">{test.provider} / {test.model}</p>
                   <p className="text-xs text-slate-500">
-                    {exp.created_at ? formatDistanceToNow(new Date(exp.created_at), { addSuffix: true }) : ''}
+                    {test.created_at ? formatDistanceToNow(new Date(test.created_at), { addSuffix: true }) : ''}
                   </p>
                 </div>
                 <div className="flex-shrink-0">
-                  <StatusBadge status={exp.status} />
+                  {test.winner ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-amber-400"><Trophy className="h-3.5 w-3.5" /> {test.winner === 'tie' ? 'Tie' : `V${test.winner.toUpperCase()} won`}</span>
+                  ) : <span className="text-xs text-slate-500">Awaiting review</span>}
                 </div>
               </div>
             ))}
-            {experiments.length === 0 && (
-              <p className="empty-note">No experiments yet</p>
+            {pairwiseTests.length === 0 && (
+              <p className="empty-note">No pairwise tests yet</p>
             )}
           </div>
         </div>
