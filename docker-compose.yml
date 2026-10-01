@@ -5,6 +5,7 @@ version: '3.8'
 # ==============================================================================
 
 services:
+
   # ----------------------------------------------------------------------------
   # PostgreSQL Database (Internal Only)
   # ----------------------------------------------------------------------------
@@ -12,30 +13,42 @@ services:
     image: postgres:15-alpine
     container_name: llmops-postgres
     restart: unless-stopped
+
     env_file:
       - .env
+
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: ${POSTGRES_DB:-llmops}
+
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-llmops}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-llmops}"
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
+
     networks:
       - backend-network
-    # Port is deliberately NOT exposed to host/internet for security
+
+    # Internal only — NOT exposed to EC2 host/internet
     expose:
       - "5432"
+
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
+
 
   # ----------------------------------------------------------------------------
   # Redis Cache & Message Broker (Internal Only)
@@ -44,130 +57,198 @@ services:
     image: redis:7-alpine
     container_name: llmops-redis
     restart: unless-stopped
-    command: ["redis-server", "--appendonly", "yes"]
+
+    command:
+      - redis-server
+      - --appendonly
+      - "yes"
+
     volumes:
       - redis_data:/data
+
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 5s
+
     networks:
       - backend-network
-    # Port is deliberately NOT exposed to host/internet for security
+
+    # Internal only — NOT exposed to EC2 host/internet
     expose:
       - "6379"
+
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
 
+
   # ----------------------------------------------------------------------------
-  # Database Migration Service (Runs Once Prior to API Startup)
+  # Database Migration Service
+  # Runs Alembic migrations before API/Worker startup
   # ----------------------------------------------------------------------------
   migrate:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: ${BACKEND_IMAGE:-llmops-backend:latest}
+    image: ghcr.io/mirofadlalla/llmops-backend:sha-af02a90
+
     container_name: llmops-migrate
     restart: "no"
+
     env_file:
       - .env
+
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       REDIS_HOST: redis
       REDIS_PORT: 6379
+
     depends_on:
       postgres:
         condition: service_healthy
-    command: ["alembic", "upgrade", "head"]
+
+    command:
+      - alembic
+      - upgrade
+      - head
+
     networks:
       - backend-network
 
+
   # ----------------------------------------------------------------------------
-  # FastAPI Application (Exposed on EC2 Host)
+  # FastAPI Application
+  # Exposed on EC2 Host
   # ----------------------------------------------------------------------------
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: ${BACKEND_IMAGE:-llmops-backend:latest}
+    image: ghcr.io/mirofadlalla/llmops-backend:sha-af02a90
+
     container_name: llmops-api
     restart: unless-stopped
+
     env_file:
       - .env
+
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       REDIS_HOST: redis
       REDIS_PORT: 6379
+
     ports:
       - "${PORT:-8000}:8000"
+
     depends_on:
       postgres:
         condition: service_healthy
+
       redis:
         condition: service_healthy
+
       migrate:
         condition: service_completed_successfully
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "2"]
+
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --workers
+      - "2"
+
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"
+        ]
       interval: 15s
       timeout: 5s
       retries: 3
       start_period: 15s
+
     networks:
       - backend-network
+
     logging:
       driver: "json-file"
       options:
         max-size: "15m"
         max-file: "5"
+
 
   # ----------------------------------------------------------------------------
   # Celery Asynchronous Task Worker
   # ----------------------------------------------------------------------------
   celery-worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: ${BACKEND_IMAGE:-llmops-backend:latest}
+    image: ghcr.io/mirofadlalla/llmops-backend:sha-af02a90
+
     container_name: llmops-celery-worker
     restart: unless-stopped
+
     env_file:
       - .env
+
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       REDIS_HOST: redis
       REDIS_PORT: 6379
+
     depends_on:
       postgres:
         condition: service_healthy
+
       redis:
         condition: service_healthy
+
       migrate:
         condition: service_completed_successfully
-    # Worker listens to both the dedicated llm_tasks_queue and default celery queue
-    command: ["celery", "-A", "app.core.celery_app", "worker", "-l", "info", "-Q", "llm_tasks_queue,celery", "--concurrency=2"]
+
+    # Worker listens to both dedicated llm_tasks_queue and default celery queue
+    command:
+      - celery
+      - -A
+      - app.core.celery_app
+      - worker
+      - -l
+      - info
+      - -Q
+      - llm_tasks_queue,celery
+      - --concurrency=2
+
     networks:
       - backend-network
+
     logging:
       driver: "json-file"
       options:
         max-size: "15m"
         max-file: "5"
 
+
+# ==============================================================================
+# Persistent Volumes
+# ==============================================================================
+
 volumes:
   postgres_data:
     name: llmops_postgres_data
+
   redis_data:
     name: llmops_redis_data
+
+
+# ==============================================================================
+# Internal Backend Network
+# ==============================================================================
 
 networks:
   backend-network:

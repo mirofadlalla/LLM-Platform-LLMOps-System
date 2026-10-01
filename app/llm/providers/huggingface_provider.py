@@ -7,31 +7,40 @@ Supported models (configured in registry.py):
 """
 
 import logging
+import threading
 
 from app.llm.base import BaseLLMProvider, LLMResponse, ModelInfo
 
 logger = logging.getLogger(__name__)
+
+_HF_REQUEST_TIMEOUT_S = 60.0
 
 
 class HuggingFaceProvider(BaseLLMProvider):
     """
     Strategy implementation for the HuggingFace Inference API.
 
-    The InferenceClient is lazily initialised on the first generate() call.
+    The InferenceClient is lazily initialised once per process (thread-safe).
     """
 
-    _client = None  # class-level cache
+    _client = None
+    _client_lock = threading.Lock()
 
-    @property
-    def client(self):
-        if self._client is None:
-            from huggingface_hub import InferenceClient  # lazy import
+    @classmethod
+    def get_inference_client(cls):
+        if cls._client is None:
+            with cls._client_lock:
+                if cls._client is None:
+                    from huggingface_hub import InferenceClient
 
-            from app.core.config import settings
+                    from app.core.config import settings
 
-            self._client = InferenceClient(api_key=settings.huggingface_api_key)
-            logger.info("HuggingFace InferenceClient initialised")
-        return self._client
+                    cls._client = InferenceClient(
+                        api_key=settings.huggingface_api_key,
+                        timeout=_HF_REQUEST_TIMEOUT_S,
+                    )
+                    logger.info("HuggingFace InferenceClient initialised")
+        return cls._client
 
     def generate(
         self,
@@ -68,7 +77,7 @@ class HuggingFaceProvider(BaseLLMProvider):
 
         logger.debug(f"HuggingFace request: api_id={model.api_id!r}")
 
-        completion = self.client.chat.completions.create(**api_kwargs)
+        completion = self.get_inference_client().chat.completions.create(**api_kwargs)
 
         text: str = completion.choices[0].message.content or ""
 

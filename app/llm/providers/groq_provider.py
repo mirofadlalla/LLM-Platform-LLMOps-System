@@ -12,9 +12,17 @@ The `reasoning` variant is handled automatically via ModelInfo.extra_params —
 no special-casing inside this class.
 """
 
+from __future__ import annotations
+
 import logging
+import threading
 
 from app.llm.base import BaseLLMProvider, LLMResponse, ModelInfo
+from app.llm.http_clients import (
+    SYNC_HTTP_TIMEOUT,
+    close_sync_httpx_client,
+    get_sync_httpx_client,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,23 +31,50 @@ class GroqProvider(BaseLLMProvider):
     """
     Strategy implementation for the Groq Cloud API.
 
-    The Groq client is lazily initialised on the first generate() call so that
-    importing this module never triggers network I/O or fails on missing config.
+    The Groq SDK client and its underlying httpx pool are initialised once per
+    process (thread-safe) and reused for every generate() call.
     """
 
-    _client = None  # shared across all instances (class-level cache)
+    _sdk_client = None
+    _client_lock = threading.Lock()
 
-    @property
-    def client(self):
-        if self._client is None:
-            # Lazy import — keep startup fast even if `groq` is not installed
-            from groq import Groq
+    @classmethod
+    def _build_sdk_client(cls):
+        from groq import Groq
 
-            from app.core.config import settings
+        from app.core.config import settings
 
-            self._client = Groq(api_key=settings.groq_api_key)
-            logger.info("Groq client initialised")
-        return self._client
+        try:
+            return Groq(
+                api_key=settings.groq_api_key,
+                http_client=get_sync_httpx_client(),
+                timeout=SYNC_HTTP_TIMEOUT,
+                max_retries=2,
+            )
+        except Exception as exc:
+            logger.error("Failed to initialise Groq client: %s", exc)
+            raise
+
+    @classmethod
+    def get_sdk_client(cls):
+        if cls._sdk_client is None:
+            with cls._client_lock:
+                if cls._sdk_client is None:
+                    cls._sdk_client = cls._build_sdk_client()
+                    logger.info("Groq client initialised (shared httpx pool)")
+        return cls._sdk_client
+
+    @classmethod
+    def reset_sdk_client(cls) -> None:
+        """Drop cached SDK + httpx pool after connection failures."""
+        with cls._client_lock:
+            if cls._sdk_client is not None:
+                try:
+                    cls._sdk_client.close()
+                except Exception:
+                    logger.debug("Error closing Groq SDK client", exc_info=True)
+                cls._sdk_client = None
+            close_sync_httpx_client()
 
     def generate(
         self,
@@ -49,6 +84,8 @@ class GroqProvider(BaseLLMProvider):
         temperature: float | None = None,
         max_tokens: int | None = None,
     ) -> LLMResponse:
+        from groq import APIConnectionError
+
         from app.core.config import settings
 
         effective_temp = (
@@ -58,24 +95,18 @@ class GroqProvider(BaseLLMProvider):
             max_tokens if max_tokens is not None else settings.llm_max_new_tokens
         )
 
-        # Build the message list
         messages: list[dict] = []
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         messages.append({"role": "user", "content": prompt})
 
-        # Base API kwargs
         api_kwargs: dict = {
             "model": model.api_id,
             "messages": messages,
             "temperature": effective_temp,
-            "max_completion_tokens": effective_max_tokens,  # Groq uses this, not max_tokens
+            "max_completion_tokens": effective_max_tokens,
             "stream": False,
         }
-
-        # Merge model-level extra params last so they can override base kwargs.
-        # This is how reasoning_effort, top_p, etc. are injected per-model
-        # without any if/elif logic inside this class.
         api_kwargs.update(model.extra_params)
 
         logger.debug(
@@ -83,11 +114,10 @@ class GroqProvider(BaseLLMProvider):
             f"extra={model.extra_params or '{}'}"
         )
 
-        completion = self.client.chat.completions.create(**api_kwargs)
+        completion = self._create_completion(api_kwargs, APIConnectionError)
 
         text: str = completion.choices[0].message.content or ""
 
-        # Prefer the actual token counts returned by the API
         if completion.usage:
             input_tokens = completion.usage.prompt_tokens
             output_tokens = completion.usage.completion_tokens
@@ -104,3 +134,14 @@ class GroqProvider(BaseLLMProvider):
             input_tokens=input_tokens,
             output_tokens=output_tokens,
         )
+
+    def _create_completion(self, api_kwargs: dict, connection_error_type: type):
+        try:
+            return self.get_sdk_client().chat.completions.create(**api_kwargs)
+        except connection_error_type as exc:
+            logger.warning(
+                "Groq connection error (%s), resetting HTTP pool and retrying once",
+                exc,
+            )
+            self.reset_sdk_client()
+            return self.get_sdk_client().chat.completions.create(**api_kwargs)

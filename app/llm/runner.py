@@ -47,6 +47,9 @@ def call_llm(
     Raises:
         ValueError   — unknown provider or model slug
         <SDK errors> — propagated from the provider (network, auth, etc.)
+
+    HTTP clients are pooled inside each provider module; this function does not
+    create a new SDK client per call.
     """
     effective_provider = provider_id or settings.default_llm_provider
     effective_model = model_slug or settings.default_llm_model

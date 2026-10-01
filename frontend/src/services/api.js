@@ -237,8 +237,11 @@ export const experimentService = {
   },
 
   run: async (promptId, experimentName) => {
-    const { data } = await api.post('/experiments/run', null, {
-      params: { prompt_id: promptId, experiment_name: experimentName }
+    // The backend validates ExperimentRunCreate from the request body.
+    // Sending these as query parameters causes FastAPI to return 422.
+    const { data } = await api.post('/experiments/run', {
+      prompt_id: promptId,
+      experiment_name: experimentName,
     });
     return data;
   },
