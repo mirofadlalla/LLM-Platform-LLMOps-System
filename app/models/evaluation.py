@@ -27,7 +27,8 @@ class EvaluationResult(Base):
     golden_example_id = Column(String, ForeignKey("golden_examples.id", ondelete="CASCADE"))
     score = Column(Float, nullable=False)
     reason = Column(Text, nullable=True, default="")
-    hallucination_rate = Column(Float, nullable=True)
+    # DB column name is the typo introduced in 7922d3edf5ad; Python attr stays readable.
+    hallucination_rate = Column("halluation_rate", Float, nullable=True)
     output = Column(Text)
     created_at = Column(DateTime, default=datetime.utcnow)
 
