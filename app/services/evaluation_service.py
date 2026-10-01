@@ -106,20 +106,39 @@ class EvaluationService:
             output, _, _ = call_llama(rendered)
             logger.info(f"LLM output for example id={example.id}: {output!r}")
 
-            score = similarity_score(
-                user_input=rendered,
-                expected_output=example.expected_output,
-                model_output=output,
-            )
+            try:
+                score = similarity_score(
+                    user_input=rendered,
+                    expected_output=example.expected_output,
+                    model_output=output,
+                )
+            except Exception as exc:
+                logger.warning(
+                    "similarity_score failed for example id=%s: %s",
+                    example.id,
+                    exc,
+                )
+                score = {
+                    "score": 0.0,
+                    "reason": "Evaluator failed; assigned default score.",
+                    "hallucination_rate": 0.0,
+                }
+
+            numeric_score = float(score.get("score", 0.0) or 0.0)
+            numeric_score = max(0.0, min(1.0, numeric_score))
+            hallucination_rate = float(score.get("hallucination_rate", 0.0) or 0.0)
+            hallucination_rate = max(0.0, min(1.0, hallucination_rate))
+
             logger.info(f"Score for example id={example.id}: {score}")
 
-            scores.append(score["score"])
+            scores.append(numeric_score)
             results.append(
                 EvaluationResult(
                     prompt_version_id=version_id,
                     golden_example_id=example.id,
-                    score=score["score"],
-                    reason=score.get("reason", ""),
+                    score=numeric_score,
+                    reason=score.get("reason") or "",
+                    hallucination_rate=hallucination_rate,
                     output=output,
                 )
             )
